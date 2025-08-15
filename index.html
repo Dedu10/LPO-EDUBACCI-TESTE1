@@ -1,368 +1,459 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>LPO – Edu Bacci</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0b0e14">
-  <link rel="apple-touch-icon" href="icon-512.png">
-  <style>
-    *{box-sizing:border-box}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0b0e14;color:#eaeef5}
-    header{position:sticky;top:0;background:#121826;border-bottom:1px solid #22304a;padding:14px 16px;z-index:2}
-    h1{font-size:18px;margin:0}
-    main{max-width:980px;margin:0 auto;padding:16px}
-    .tabs{display:flex;gap:8px;margin-top:8px}
-    .tab{border:1px solid #2a3b5e;background:#0f1420;color:#eaeef5;border-radius:999px;padding:8px 12px;cursor:pointer}
-    .tab.active{background:#2663ff;border-color:#2663ff}
-    .card{background:#121826;border:1px solid #22304a;border-radius:12px;padding:14px;margin:14px 0}
-    .grid{display:grid;gap:10px}
-    .grid-2{grid-template-columns:1fr 1fr}
-    label{font-size:12px;color:#9fb3c8}
-    input[type=number],input[type=date]{width:100%;padding:10px;border-radius:8px;border:1px solid #2a3b5e;background:#0f1420;color:#eaeef5}
-    .btn{display:inline-flex;align-items:center;gap:8px;background:#2663ff;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
-    .btn:active{opacity:.9}
-    .muted{color:#9fb3c8;font-size:12px}
-    details{background:#0f1420;border:1px solid #22304a;border-radius:10px;margin:8px 0;overflow:hidden}
-    details>summary{cursor:pointer;list-style:none;padding:12px 14px;font-weight:700}
-    details>summary::-webkit-details-marker{display:none}
-    table{width:100%;border-collapse:collapse;margin:8px 0;border-radius:8px;overflow:hidden}
-    th,td{border-bottom:1px solid #22304a;padding:10px;text-align:left;font-size:14px;vertical-align:middle}
-    th{background:#101726}
-    code{background:#101726;border:1px solid #22304a;padding:2px 6px;border-radius:6px}
-    .pill{border:1px solid #2a3b5e;padding:2px 8px;border-radius:999px;font-size:12px;color:#9fb3c8;margin-right:6px}
-    footer{color:#9fb3c8;text-align:center;padding:24px}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .right{margin-left:auto}
-    .hide{display:none}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LPO – Edu Bacci</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b0e14">
+<link rel="apple-touch-icon" href="icon-512.png">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0b0e14;color:#eaeef5}
+  header{position:sticky;top:0;background:#121826;border-bottom:1px solid #22304a;padding:14px 16px;z-index:2}
+  h1{font-size:18px;margin:0}
+  main{max-width:1000px;margin:0 auto;padding:16px}
+  .tabs{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .tab{border:1px solid #2a3b5e;background:#0f1420;color:#eaeef5;border-radius:999px;padding:8px 12px;cursor:pointer}
+  .tab.active{background:#2663ff;border-color:#2663ff}
+  .card{background:#121826;border:1px solid #22304a;border-radius:12px;padding:14px;margin:14px 0}
+  .grid{display:grid;gap:10px}
+  .grid-2{grid-template-columns:1fr 1fr}
+  label{font-size:12px;color:#9fb3c8}
+  input[type=number],input[type=date]{width:100%;padding:10px;border-radius:8px;border:1px solid #2a3b5e;background:#0f1420;color:#eaeef5}
+  select{width:100%;padding:10px;border-radius:8px;border:1px solid #2a3b5e;background:#0f1420;color:#eaeef5}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:#2663ff;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
+  .btn.ghost{background:#0f1420;border:1px solid #2a3b5e}
+  .muted{color:#9fb3c8;font-size:12px}
+  details{background:#0f1420;border:1px solid #22304a;border-radius:10px;margin:8px 0;overflow:hidden}
+  details>summary{cursor:pointer;list-style:none;padding:12px 14px;font-weight:700}
+  details>summary::-webkit-details-marker{display:none}
+  table{width:100%;border-collapse:collapse;margin:8px 0;border-radius:8px;overflow:hidden}
+  th,td{border-bottom:1px solid #22304a;padding:8px;text-align:left;font-size:14px;vertical-align:middle}
+  th{background:#101726}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .right{margin-left:auto}
+  .pill{border:1px solid #2a3b5e;padding:2px 8px;border-radius:999px;font-size:12px;color:#9fb3c8;margin-right:6px}
+  .timer{font-variant-numeric:tabular-nums}
+  .hide{display:none}
+  footer{color:#9fb3c8;text-align:center;padding:24px}
+</style>
 </head>
 <body>
-  <header>
-    <h1>LPO – Edu Bacci</h1>
-    <div class="tabs">
-      <button id="tab-treino" class="tab active">Treino</button>
-      <button id="tab-historico" class="tab">Histórico</button>
+<header>
+  <h1>LPO – Edu Bacci</h1>
+  <div class="tabs">
+    <button id="tab-treino" class="tab active">Treino</button>
+    <button id="tab-historico" class="tab">Histórico</button>
+    <button id="tab-config" class="tab">Config 1RM</button>
+  </div>
+  <div class="muted">Interativo • offline • salva no aparelho. Ajuste cargas, marque feito, RPE, timers e salve a sessão.</div>
+</header>
+
+<main>
+  <!-- CONFIG -->
+  <section id="page-config" class="card hide">
+    <h3 style="margin:0 0 8px">1RM → TM (90%)</h3>
+    <div class="grid grid-2">
+      <div><label>Snatch (1RM)</label><input type="number" id="sn1" step="0.5" value="50"></div>
+      <div><label>Clean & Jerk (1RM)</label><input type="number" id="cj1" step="0.5" value="60"></div>
+      <div><label>Front Squat (1RM)</label><input type="number" id="fs1" step="0.5" value="80"></div>
+      <div><label>Back Squat (1RM)</label><input type="number" id="bs1" step="0.5" value="134"></div>
+      <div><label>Deadlift (1RM)</label><input type="number" id="dl1" step="0.5" value="128"></div>
+      <div><label>Bench Press (1RM)</label><input type="number" id="bp1" step="0.5" value="99"></div>
+      <div><label>Overhead Press (1RM)</label><input type="number" id="oh1" step="0.5" value="64"></div>
     </div>
-    <div class="muted">Preencha seus 1RMs. O app calcula TM (90%) e pesos. Tudo fica salvo no aparelho (offline).</div>
-  </header>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="save1rm">Salvar 1RMs</button>
+      <span class="pill" id="tmSn"></span><span class="pill" id="tmCj"></span><span class="pill" id="tmFs"></span>
+      <span class="pill" id="tmBs"></span><span class="pill" id="tmDl"></span><span class="pill" id="tmBp"></span><span class="pill" id="tmOh"></span>
+    </div>
+    <div class="muted" style="margin-top:8px">TM = 90% do 1RM. Os pesos do treino se atualizam automaticamente.</div>
+  </section>
 
-  <main>
-    <!-- BLOCO CONFIG 1RM -->
-    <section class="card" id="cfg">
-      <h3 style="margin:0 0 8px 0">1RM → TM (90%)</h3>
-      <div class="grid grid-2">
-        <div><label>Snatch – 1RM (kg)</label><input type="number" id="sn1" step="0.5" value="50"></div>
-        <div><label>Clean & Jerk – 1RM (kg)</label><input type="number" id="cj1" step="0.5" value="60"></div>
-        <div><label>Front Squat – 1RM (kg)</label><input type="number" id="fs1" step="0.5" value="80"></div>
-        <div><label>Back Squat – 1RM (kg)</label><input type="number" id="bs1" step="0.5" value="134"></div>
-        <div><label>Deadlift – 1RM (kg)</label><input type="number" id="dl1" step="0.5" value="128"></div>
-        <div><label>Bench Press – 1RM (kg)</label><input type="number" id="bp1" step="0.5" value="99"></div>
-        <div><label>Overhead Press – 1RM (kg)</label><input type="number" id="oh1" step="0.5" value="64"></div>
+  <!-- TREINO -->
+  <section id="page-treino">
+    <section class="card">
+      <div class="row">
+        <h3 style="margin:0">Semana 1</h3>
+        <div class="right row">
+          <span class="pill">Sessão: <span id="sess-timer" class="timer">00:00</span></span>
+          <button id="sess-start" class="btn ghost">Iniciar</button>
+          <button id="sess-stop" class="btn ghost">Parar</button>
+          <button id="sess-reset" class="btn ghost">Zerar</button>
+        </div>
       </div>
-      <div class="row" style="margin-top:12px">
-        <button class="btn" id="save">Salvar 1RMs</button>
-        <span class="pill" id="tmSn"></span>
-        <span class="pill" id="tmCj"></span>
-        <span class="pill" id="tmFs"></span>
-        <span class="pill" id="tmBs"></span>
-        <span class="pill" id="tmDl"></span>
-        <span class="pill" id="tmBp"></span>
-        <span class="pill" id="tmOh"></span>
+      <div class="muted">Use os timers de descanso por exercício (60/90/120s), ajuste “Real (kg)”, marque “Feito” e escolha o RPE.</div>
+
+      <!-- D1 -->
+      <details open>
+        <summary>DIA 1 — Snatch + Front Squat</summary>
+        <div class="row">
+          <label>Data</label><input type="date" id="date-d1">
+          <div class="right row">
+            <button class="btn ghost rest" data-secs="60">Descanso 60s</button>
+            <button class="btn ghost rest" data-secs="90">90s</button>
+            <button class="btn ghost rest" data-secs="120">120s</button>
+            <span class="pill">Rest: <span id="rest-d1" class="timer">00:00</span></span>
+          </div>
+        </div>
+        <table>
+          <thead><tr>
+            <th>#</th><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th>
+            <th>Prescrito (kg)</th><th>Real (kg)</th><th>RPE</th><th>Feito</th><th>Timer</th><th>Vídeo</th>
+          </tr></thead>
+          <tbody id="d1"></tbody>
+        </table>
+        <div class="row">
+          <button class="btn" data-save-day="d1">Salvar sessão (Dia 1)</button>
+          <button class="btn ghost" data-markall="d1">Marcar tudo Feito</button>
+        </div>
+      </details>
+
+      <!-- D2 -->
+      <details>
+        <summary>DIA 2 — Clean & Jerk + Back Squat</summary>
+        <div class="row">
+          <label>Data</label><input type="date" id="date-d2">
+          <div class="right row">
+            <button class="btn ghost rest" data-secs="60">Descanso 60s</button>
+            <button class="btn ghost rest" data-secs="90">90s</button>
+            <button class="btn ghost rest" data-secs="120">120s</button>
+            <span class="pill">Rest: <span id="rest-d2" class="timer">00:00</span></span>
+          </div>
+        </div>
+        <table>
+          <thead><tr>
+            <th>#</th><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th>
+            <th>Prescrito (kg)</th><th>Real (kg)</th><th>RPE</th><th>Feito</th><th>Timer</th><th>Vídeo</th>
+          </tr></thead>
+          <tbody id="d2"></tbody>
+        </table>
+        <div class="row">
+          <button class="btn" data-save-day="d2">Salvar sessão (Dia 2)</button>
+          <button class="btn ghost" data-markall="d2">Marcar tudo Feito</button>
+        </div>
+      </details>
+
+      <!-- D3 -->
+      <details>
+        <summary>DIA 3 — Estabilidade Overhead + Puxadas</summary>
+        <div class="row">
+          <label>Data</label><input type="date" id="date-d3">
+          <div class="right row">
+            <button class="btn ghost rest" data-secs="60">Descanso 60s</button>
+            <button class="btn ghost rest" data-secs="90">90s</button>
+            <button class="btn ghost rest" data-secs="120">120s</button>
+            <span class="pill">Rest: <span id="rest-d3" class="timer">00:00</span></span>
+          </div>
+        </div>
+        <table>
+          <thead><tr>
+            <th>#</th><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th>
+            <th>Prescrito (kg)</th><th>Real (kg)</th><th>RPE</th><th>Feito</th><th>Timer</th><th>Vídeo</th>
+          </tr></thead>
+          <tbody id="d3"></tbody>
+        </table>
+        <div class="row">
+          <button class="btn" data-save-day="d3">Salvar sessão (Dia 3)</button>
+          <button class="btn ghost" data-markall="d3">Marcar tudo Feito</button>
+        </div>
+      </details>
+
+      <!-- D4 -->
+      <details>
+        <summary>DIA 4 — Complexos técnicos + Front Squat</summary>
+        <div class="row">
+          <label>Data</label><input type="date" id="date-d4">
+          <div class="right row">
+            <button class="btn ghost rest" data-secs="60">Descanso 60s</button>
+            <button class="btn ghost rest" data-secs="90">90s</button>
+            <button class="btn ghost rest" data-secs="120">120s</button>
+            <span class="pill">Rest: <span id="rest-d4" class="timer">00:00</span></span>
+          </div>
+        </div>
+        <table>
+          <thead><tr>
+            <th>#</th><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th>
+            <th>Prescrito (kg)</th><th>Real (kg)</th><th>RPE</th><th>Feito</th><th>Timer</th><th>Vídeo</th>
+          </tr></thead>
+          <tbody id="d4"></tbody>
+        </table>
+        <div class="row">
+          <button class="btn" data-save-day="d4">Salvar sessão (Dia 4)</button>
+          <button class="btn ghost" data-markall="d4">Marcar tudo Feito</button>
+        </div>
+      </details>
+    </section>
+  </section>
+
+  <!-- HISTÓRICO -->
+  <section id="page-hist" class="hide">
+    <section class="card">
+      <div class="row">
+        <h3 style="margin:0">Histórico</h3>
+        <div class="right row">
+          <button class="btn ghost" id="exportCsv">Exportar CSV</button>
+          <button class="btn ghost" id="clearHist">Limpar histórico</button>
+        </div>
       </div>
-      <div class="muted" style="margin-top:8px">TM = 90% do 1RM. Arredondado a <code>0,5 kg</code>.</div>
+      <div id="hist"></div>
+      <div class="muted">Tudo salvo localmente (este aparelho). Depois podemos sincronizar na nuvem.</div>
     </section>
+  </section>
+</main>
 
-    <!-- PÁGINA TREINO -->
-    <section id="page-treino">
-      <section class="card">
-        <h3 style="margin:0 0 8px 0">Semana 1</h3>
-        <div class="muted">Toque para abrir cada dia. Preencha “Real (kg)” e marque “Feito”.</div>
+<footer>© LPO – Edu Bacci. Offline. Dados locais.</footer>
 
-        <!-- DIA 1 -->
-        <details open>
-          <summary>DIA 1 — Snatch + Front Squat</summary>
-          <div class="row">
-            <label>Data</label><input type="date" id="date-d1">
-            <button class="btn right" data-save-day="d1">Salvar sessão do Dia 1</button>
-          </div>
-          <table>
-            <thead>
-              <tr><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Prescrito (kg)</th><th>Real (kg)</th><th>Feito</th><th>Link</th></tr>
-            </thead>
-            <tbody id="d1"></tbody>
-          </table>
-        </details>
+<script>
+/*** ===== Helpers/TMs ===== ***/
+const $ = s => document.querySelector(s);
+const today = () => new Date().toISOString().slice(0,10);
+const round05 = v => Math.round(v*2)/2;
+const perc = (tm, p) => round05(tm * p);
+const saveKey = 'lpo_tm_v2';
+const sessKey = 'lpo_sessions_v2';
+function load1RM(){
+  try{const s=JSON.parse(localStorage.getItem(saveKey)||'{}');
+    ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>{if(s[id]!=null&&$( '#'+id)) $('#'+id).value=s[id];});
+  }catch(e){}
+}
+function getTM(){ // 90% dos 1RMs
+  const g=id=>Number($('#'+id)?.value||0)*0.9;
+  return {sn:g('sn1'), cj:g('cj1'), fs:g('fs1'), bs:g('bs1'), dl:g('dl1'), bp:g('bp1'), oh:g('oh1')};
+}
+function showTMs(){
+  const {sn,cj,fs,bs,dl,bp,oh}=getTM();
+  if($('#tmSn')){ $('#tmSn').textContent='TM Snatch: '+round05(sn)+' kg';
+    $('#tmCj').textContent='TM C&J: '+round05(cj)+' kg';
+    $('#tmFs').textContent='TM Front: '+round05(fs)+' kg';
+    $('#tmBs').textContent='TM Back: '+round05(bs)+' kg';
+    $('#tmDl').textContent='TM Terra: '+round05(dl)+' kg';
+    $('#tmBp').textContent='TM Supino: '+round05(bp)+' kg';
+    $('#tmOh').textContent='TM OHP: '+round05(oh)+' kg';
+  }
+}
+$('#save1rm')?.addEventListener('click',()=>{
+  const data={}; ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>data[id]=Number($('#'+id).value||0));
+  localStorage.setItem(saveKey,JSON.stringify(data)); showTMs(); renderAll();
+});
 
-        <!-- DIA 2 -->
-        <details>
-          <summary>DIA 2 — Clean & Jerk + Back Squat</summary>
-          <div class="row">
-            <label>Data</label><input type="date" id="date-d2">
-            <button class="btn right" data-save-day="d2">Salvar sessão do Dia 2</button>
-          </div>
-          <table>
-            <thead>
-              <tr><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Prescrito (kg)</th><th>Real (kg)</th><th>Feito</th><th>Link</th></tr>
-            </thead>
-            <tbody id="d2"></tbody>
-          </table>
-        </details>
+/*** ===== Programa Semana 1 ===== ***/
+// lift: qual TM usar: sn,cj,fs,bs,dl,bp,oh | perc: [min,max] ou null p/ mobilidade/aquecimento
+const W1 = {
+ d1: [
+  {blk:'Mobilidade', ex:'Panturrilha, t-spine, Couch', sets:'2–3 min', lift:null, perc:null, link:'https://www.youtube.com/watch?v=ulgAOykAgV4'},
+  {blk:'Aquecimento', ex:'Burgener Warm-Up (Snatch)', sets:'1–2 voltas', lift:null, perc:null, link:'https://www.youtube.com/watch?v=4wLDeeHds58'},
+  {blk:'Técnico', ex:'Tall Snatch', sets:'5x3', lift:'sn', perc:[0.40,0.55], link:'https://www.catalystathletics.com/exercise/217/Tall-Snatch/'},
+  {blk:'LPO força', ex:'Overhead Squat', sets:'4x3', lift:'sn', perc:[0.55,0.55], link:'https://www.catalystathletics.com/exercise/79/Overhead-Squat/'},
+  {blk:'Força', ex:'Front Squat', sets:'4x5', lift:'fs', perc:[0.70,0.70], link:'https://www.catalystathletics.com/exercise/78/Front-Squat/'},
+  {blk:'Pull Snatch', ex:'Snatch High Pull', sets:'4x3', lift:'sn', perc:[0.75,0.75], link:'https://www.catalystathletics.com/exercise/99/Snatch-High-Pull/'},
+  {blk:'Acessório', ex:'1¼ Back Squat', sets:'3x5', lift:'bs', perc:[0.55,0.60], link:'https://www.catalystathletics.com/exercise/168/1-14-Back-Squat/'},
+  {blk:'Core', ex:'Prancha + Hollow', sets:'3x30–45s', lift:null, perc:null, link:''}
+ ],
+ d2: [
+  {blk:'Mobilidade', ex:'Dorsiflexão (knee-to-wall), t-spine', sets:'2–3 min', lift:null, perc:null, link:'https://www.physio-pedia.com/Knee_to_Wall_Test'},
+  {blk:'Aquecimento', ex:'Jerk dip/drive', sets:'2–3x', lift:null, perc:null, link:''},
+  {blk:'Técnico', ex:'Clean Pull', sets:'4x3', lift:'cj', perc:[0.85,0.85], link:'https://www.catalystathletics.com/exercise/98/Clean-Pull/'},
+  {blk:'LPO', ex:'Clean & Jerk (1+2)', sets:'6x', lift:'cj', perc:[0.60,0.60], link:'https://www.catalystathletics.com/exercise/86/Clean-Jerk/'},
+  {blk:'Força', ex:'Back Squat', sets:'5x3', lift:'bs', perc:[0.70,0.70], link:'https://www.catalystathletics.com/exercise/77/Back-Squat/'},
+  {blk:'Overhead', ex:'Push Press', sets:'4x4', lift:'cj', perc:[0.70,0.70], link:'https://www.catalystathletics.com/exercise/87/Push-Press/'},
+  {blk:'Acessório', ex:'Romanian Deadlift', sets:'3x8', lift:'dl', perc:[0.40,0.40], link:''},
+  {blk:'Core', ex:'Farmer Carry pesado', sets:'4x20–30 m', lift:null, perc:null, link:''}
+ ],
+ d3: [
+  {blk:'Mobilidade', ex:'PVC dislocates + Couch', sets:'2–3 min', lift:null, perc:null, link:'https://www.youtube.com/watch?v=j32NGzthtN4'},
+  {blk:'Aquecimento', ex:'Saltos + agacho com pausa', sets:'—', lift:null, perc:null, link:''},
+  {blk:'Overhead', ex:'Press Behind-the-Neck', sets:'4x5', lift:'cj', perc:[0.60,0.60], link:'https://www.catalystathletics.com/exercise/204/Press-Behind-The-Neck/'},
+  {blk:'Estab.', ex:'Snatch Balance', sets:'5x2', lift:'sn', perc:[0.60,0.60], link:'https://www.catalystathletics.com/exercise/90/Snatch-Balance/'},
+  {blk:'Pull Clean', ex:'Clean High Pull', sets:'4x3', lift:'cj', perc:[0.85,0.85], link:'https://www.catalystathletics.com/exercise/100/Clean-High-Pull/'},
+  {blk:'Acessório', ex:'Back Squat Jump', sets:'4x5', lift:null, perc:null, link:'https://www.catalystathletics.com/exercise/353/Back-Squat-Jump/'},
+  {blk:'Core', ex:'Pallof + Side plank', sets:'3x10 / 3x30–45s', lift:null, perc:null, link:''}
+ ],
+ d4: [
+  {blk:'Mobilidade', ex:'Panturrilha + glúteo + t-spine', sets:'2–3 min', lift:null, perc:null, link:''},
+  {blk:'Aquecimento', ex:'Tall Muscle Snatch', sets:'4x3', lift:'sn', perc:[0.35,0.35], link:'https://www.catalystathletics.com/exercise/543/Tall-Muscle-Snatch/'},
+  {blk:'Complexo', ex:'Hang Snatch High Pull + OHS', sets:'6x (2+1)', lift:'sn', perc:[0.55,0.55], link:'https://www.catalystathletics.com/exercise/403/Block-Snatch-High-Pull/'},
+  {blk:'Força', ex:'Front Squat', sets:'5x3', lift:'fs', perc:[0.725,0.725], link:'https://www.catalystathletics.com/exercise/78/Front-Squat/'},
+  {blk:'Técnica Jerk', ex:'Push Press BTN', sets:'4x3', lift:'cj', perc:[0.65,0.65], link:'https://www.catalystathletics.com/exercise/88/Push-Press-Behind-The-Neck/'},
+  {blk:'Mobilidade', ex:'Clean-Grip OHS (leve)', sets:'3x5', lift:'sn', perc:[0.35,0.35], link:'https://www.catalystathletics.com/exercise/420/Clean-Grip-Overhead-Squat/'},
+  {blk:'Core', ex:'Overhead carry (barra/PVC)', sets:'3–4 x 20–30 m', lift:null, perc:null, link:''}
+ ]
+};
 
-        <!-- DIA 3 -->
-        <details>
-          <summary>DIA 3 — Estabilidade Overhead + Puxadas</summary>
-          <div class="row">
-            <label>Data</label><input type="date" id="date-d3">
-            <button class="btn right" data-save-day="d3">Salvar sessão do Dia 3</button>
-          </div>
-          <table>
-            <thead>
-              <tr><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Prescrito (kg)</th><th>Real (kg)</th><th>Feito</th><th>Link</th></tr>
-            </thead>
-            <tbody id="d3"></tbody>
-          </table>
-        </details>
+/*** ===== Render ===== ***/
+function kgText(tm, p){ if(!p) return '—'; const [a,b]=p; const t1=perc(tm,a); const t2=perc(tm,b); return (a===b)?(`${t1}`):(`${t1} – ${t2}`); }
+function kgDefault(tm,p){ if(!p) return 0; return perc(tm,p[0]); }
 
-        <!-- DIA 4 -->
-        <details>
-          <summary>DIA 4 — Complexos técnicos + Front Squat</summary>
-          <div class="row">
-            <label>Data</label><input type="date" id="date-d4">
-            <button class="btn right" data-save-day="d4">Salvar sessão do Dia 4</button>
-          </div>
-          <table>
-            <thead>
-              <tr><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Prescrito (kg)</th><th>Real (kg)</th><th>Feito</th><th>Link</th></tr>
-            </thead>
-            <tbody id="d4"></tbody>
-          </table>
-        </details>
-      </section>
+function renderDay(dayId, data){
+  const tbody = $('#'+dayId);
+  const tm = getTM();
+  let html = '';
+  data.forEach((it,idx)=>{
+    const base = it.lift? tm[it.lift]||0 : 0;
+    const presc = kgText(base, it.perc);
+    const defKg = kgDefault(base, it.perc);
+    const link = it.link ? `<a target=_blank href="${it.link}">ver</a>` : '—';
+    // timer por exercício
+    html += `<tr data-lift="${it.lift||''}" data-perc="${it.perc?it.perc.join(','):''}">
+      <td>${idx+1}</td>
+      <td>${it.blk}</td>
+      <td>${it.ex}</td>
+      <td>${it.sets}</td>
+      <td>${presc}</td>
+      <td><input type="number" step="0.5" value="${defKg}"></td>
+      <td>
+        <select>
+          <option value="">—</option>
+          ${[6,7,8,8.5,9,9.5,10].map(v=>`<option>${v}</option>`).join('')}
+        </select>
+      </td>
+      <td style="text-align:center"><input type="checkbox"></td>
+      <td>
+        <span class="timer" id="${dayId}-t${idx}">00:00</span>
+        <button class="btn ghost start" data-for="${dayId}-t${idx}">▶</button>
+        <button class="btn ghost stop" data-for="${dayId}-t${idx}">⏸</button>
+        <button class="btn ghost reset" data-for="${dayId}-t${idx}">⟲</button>
+      </td>
+      <td>${link}</td>
+    </tr>`;
+  });
+  tbody.innerHTML = html;
+}
 
-      <section class="card">
-        <h3 style="margin-top:0">Observações</h3>
-        <ul>
-          <li>Comece pelo menor peso da faixa e progrida mantendo técnica.</li>
-          <li>Quebrou técnica? Reduza 2,5–5%.</li>
-        </ul>
-      </section>
-    </section>
+function renderAll(){
+  // datas padrão
+  ['d1','d2','d3','d4'].forEach(d=>{const el=$('#date-'+d); if(el && !el.value) el.value=today();});
+  renderDay('d1', W1.d1);
+  renderDay('d2', W1.d2);
+  renderDay('d3', W1.d3);
+  renderDay('d4', W1.d4);
+}
+load1RM(); showTMs(); renderAll();
+['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>{ $('#'+id)?.addEventListener('input', ()=>{ showTMs(); renderAll(); }); });
 
-    <!-- PÁGINA HISTÓRICO -->
-    <section id="page-historico" class="hide">
-      <section class="card">
-        <h3 style="margin:0 0 8px 0">Histórico de sessões</h3>
-        <div id="hist"></div>
-        <div class="muted">Apenas neste aparelho. Em breve: exportar CSV / nuvem.</div>
-      </section>
-    </section>
-  </main>
+/*** ===== Timers ===== ***/
+function mkStopwatch(displayEl){
+  let t=0, iv=null;
+  const fmt= s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(Math.floor(s%60)).padStart(2,'0');
+  const paint=()=>displayEl.textContent=fmt(t);
+  return {
+    start(){ if(iv) return; iv=setInterval(()=>{t++; paint();},1000); },
+    stop(){ clearInterval(iv); iv=null; },
+    reset(){ t=0; paint(); },
+    set(s){ t=s; paint(); }
+  }
+}
+const rowTimers = new Map();
+document.addEventListener('click', (e)=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.classList.contains('start')||b.classList.contains('stop')||b.classList.contains('reset')){
+    const id=b.getAttribute('data-for'); const el = document.getElementById(id); if(!el) return;
+    if(!rowTimers.has(id)) rowTimers.set(id, mkStopwatch(el));
+    const sw=rowTimers.get(id);
+    if(b.classList.contains('start')) sw.start();
+    if(b.classList.contains('stop')) sw.stop();
+    if(b.classList.contains('reset')) sw.reset();
+  }
+});
+/* Timer global da sessão */
+const sessSw = mkStopwatch($('#sess-timer'));
+$('#sess-start').addEventListener('click',()=>sessSw.start());
+$('#sess-stop').addEventListener('click',()=>sessSw.stop());
+$('#sess-reset').addEventListener('click',()=>sessSw.reset());
+/* Descanso por dia */
+function startRest(day, secs){
+  const el = $('#rest-'+day); if(!el) return;
+  let t=secs; el.textContent = String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
+  const iv=setInterval(()=>{ t--; el.textContent = String(Math.floor(Math.max(t,0)/60)).padStart(2,'0')+':'+String(Math.max(t,0)%60).padStart(2,'0'); if(t<=0) clearInterval(iv); },1000);
+}
+document.querySelectorAll('.rest').forEach(btn=>{
+  btn.addEventListener('click', ()=> {
+    const secs=Number(btn.dataset.secs||60);
+    const day = btn.closest('details').querySelector('tbody').id; // d1/d2...
+    startRest(day, secs);
+  });
+});
 
-  <footer>© LPO – Edu Bacci. Offline. Dados locais.</footer>
+/*** ===== Salvar sessão & Histórico ===== ***/
+function saveDay(dayId){
+  const date = $('#date-'+dayId)?.value || today();
+  const tbody = $('#'+dayId);
+  const rows = [...tbody.querySelectorAll('tr')];
+  const itens = rows.map((tr,idx)=>{
+    const tds = tr.querySelectorAll('td');
+    const realKg = Number(tr.querySelector('input[type=number]').value||0);
+    const rpe = tr.querySelector('select').value||'';
+    const feito = tr.querySelector('input[type=checkbox]').checked;
+    return {
+      idx: idx+1,
+      bloco: tds[1].innerText,
+      ex: tds[2].innerText,
+      series: tds[3].innerText,
+      prescrito: tds[4].innerText,
+      realKg, rpe, feito
+    };
+  });
+  const sess = { dia: dayId, data: date, tm: getTM(), itens, ts: Date.now() };
+  const arr = JSON.parse(localStorage.getItem(sessKey)||'[]');
+  arr.unshift(sess);
+  localStorage.setItem(sessKey, JSON.stringify(arr));
+  alert('Sessão salva: '+dayId+' ('+date+')');
+  renderHistory();
+}
+document.querySelectorAll('[data-save-day]').forEach(b=>b.addEventListener('click',()=>saveDay(b.dataset.saveDay)));
+document.querySelectorAll('[data-markall]').forEach(b=>b.addEventListener('click',()=>{
+  const tbody = $('#'+b.dataset.markall);
+  tbody.querySelectorAll('input[type=checkbox]').forEach(ch=>ch.checked=true);
+}));
 
-  <script>
-    // Helpers
-    const $ = s => document.querySelector(s);
-    const round05 = v => Math.round(v*2)/2;
-    const perc = (tm, p) => round05(tm * p);
-    const today = () => new Date().toISOString().slice(0,10);
-
-    // Storage keys
-    const saveKey = 'lpo_tm_v1';
-    const sessKey = 'lpo_sessions_v1';
-
-    // TMs
-    function loadSaved(){
-      try{
-        const s = JSON.parse(localStorage.getItem(saveKey)||'{}');
-        ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>{
-          if(s[id]!=null) document.getElementById(id).value = s[id];
-        });
-      }catch(e){}
-    }
-    function TMs(){
-      const sn = Number(sn1.value||0)*0.9,
-            cj = Number(cj1.value||0)*0.9,
-            fs = Number(fs1.value||0)*0.9,
-            bs = Number(bs1.value||0)*0.9,
-            dl = Number(dl1.value||0)*0.9,
-            bp = Number(bp1.value||0)*0.9,
-            oh = Number(oh1.value||0)*0.9;
-      return {sn,cj,fs,bs,dl,bp,oh};
-    }
-    function showTMs(){
-      const {sn,cj,fs,bs,dl,bp,oh} = TMs();
-      tmSn.textContent = 'TM Snatch: ' + round05(sn) + ' kg';
-      tmCj.textContent = 'TM C&J: ' + round05(cj) + ' kg';
-      tmFs.textContent = 'TM Front: ' + round05(fs) + ' kg';
-      tmBs.textContent = 'TM Back: ' + round05(bs) + ' kg';
-      tmDl.textContent = 'TM Terra: ' + round05(dl) + ' kg';
-      tmBp.textContent = 'TM Supino: ' + round05(bp) + ' kg';
-      tmOh.textContent = 'TM OHP: ' + round05(oh) + ' kg';
-    }
-
-    // Render helpers
-    function kgRange(tm,pmin,pmax){ // texto
-      const a=perc(tm,pmin), b=perc(tm,pmax);
-      return (pmin===pmax)?(a+''):(a+' – '+b);
-    }
-    function kgDefault(tm,pmin){ // valor inicial do campo "Real"
-      return perc(tm,pmin);
-    }
-    function rowHTML(day, idx, bloco, ex, sr, prescTxt, prescKg, link){
-      const realId = `${day}-real-${idx}`;
-      const doneId = `${day}-done-${idx}`;
-      const linkHtml = link ? `<a target=_blank href="${link}">vídeo</a>` : '—';
-      return `<tr data-target="${prescKg}">
-        <td>${bloco}</td>
-        <td>${ex}</td>
-        <td>${sr}</td>
-        <td>${prescTxt}</td>
-        <td><input type="number" step="0.5" id="${realId}" value="${prescKg}"></td>
-        <td style="text-align:center"><input type="checkbox" id="${doneId}"></td>
-        <td>${linkHtml}</td>
-      </tr>`;
-    }
-
-    function render(){
-      const {sn,cj,fs,bs,dl} = TMs();
-      // Set default dates
-      ['d1','d2','d3','d4'].forEach(d => { const el = document.getElementById('date-'+d); if(el && !el.value) el.value = today(); });
-
-      // DIA 1
-      let i=0, html='';
-      html += rowHTML('d1', i++, 'Mobilidade', 'Panturrilha, t-spine, Couch', '2–3 min', '—', 0, 'https://www.youtube.com/watch?v=ulgAOykAgV4');
-      html += rowHTML('d1', i++, 'Aquecimento', 'Burgener Warm-Up (Snatch)', '1–2 voltas', '—', 0, 'https://www.youtube.com/watch?v=4wLDeeHds58');
-      html += rowHTML('d1', i++, 'Técnico', 'Tall Snatch', '5x3', kgRange(sn,0.40,0.55), kgDefault(sn,0.40), 'https://www.catalystathletics.com/exercise/217/Tall-Snatch/');
-      html += rowHTML('d1', i++, 'LPO força', 'Overhead Squat', '4x3', kgRange(sn,0.55,0.55), kgDefault(sn,0.55), 'https://www.catalystathletics.com/exercise/79/Overhead-Squat/');
-      html += rowHTML('d1', i++, 'Força', 'Front Squat', '4x5', kgRange(fs,0.70,0.70), kgDefault(fs,0.70), 'https://www.catalystathletics.com/exercise/78/Front-Squat/');
-      html += rowHTML('d1', i++, 'Pull Snatch', 'Snatch High Pull', '4x3', kgRange(sn,0.75,0.75), kgDefault(sn,0.75), 'https://www.catalystathletics.com/exercise/99/Snatch-High-Pull/');
-      html += rowHTML('d1', i++, 'Acessório', '1¼ Back Squat', '3x5', kgRange(bs,0.55,0.60), kgDefault(bs,0.55), 'https://www.catalystathletics.com/exercise/168/1-14-Back-Squat/');
-      html += rowHTML('d1', i++, 'Core', 'Prancha + Hollow', '3x30–45s', '—', 0, '');
-      d1.innerHTML = html;
-
-      // DIA 2
-      i=0; html='';
-      html += rowHTML('d2', i++, 'Mobilidade', 'Dorsiflexão (knee-to-wall), t-spine', '2–3 min', '—', 0, 'https://www.physio-pedia.com/Knee_to_Wall_Test');
-      html += rowHTML('d2', i++, 'Aquecimento', 'Jerk dip/drive', '2–3x', '—', 0, '');
-      html += rowHTML('d2', i++, 'Técnico', 'Clean Pull', '4x3', kgRange(cj,0.85,0.85), kgDefault(cj,0.85), 'https://www.catalystathletics.com/exercise/98/Clean-Pull/');
-      html += rowHTML('d2', i++, 'LPO', 'Clean & Jerk (1+2)', '6x', kgRange(cj,0.60,0.60), kgDefault(cj,0.60), 'https://www.catalystathletics.com/exercise/86/Clean-Jerk/');
-      html += rowHTML('d2', i++, 'Força', 'Back Squat', '5x3', kgRange(bs,0.70,0.70), kgDefault(bs,0.70), 'https://www.catalystathletics.com/exercise/77/Back-Squat/');
-      html += rowHTML('d2', i++, 'Overhead', 'Push Press', '4x4', kgRange(cj,0.70,0.70), kgDefault(cj,0.70), 'https://www.catalystathletics.com/exercise/87/Push-Press/');
-      html += rowHTML('d2', i++, 'Acessório', 'Romanian Deadlift', '3x8', kgRange(dl,0.40,0.40), kgDefault(dl,0.40), '');
-      html += rowHTML('d2', i++, 'Core', 'Farmer Carry pesado', '4x20–30 m', '—', 0, '');
-      d2.innerHTML = html;
-
-      // DIA 3
-      i=0; html='';
-      html += rowHTML('d3', i++, 'Mobilidade', 'PVC dislocates + Couch', '2–3 min', '—', 0, 'https://www.youtube.com/watch?v=j32NGzthtN4');
-      html += rowHTML('d3', i++, 'Aquecimento', 'Saltos + agacho com pausa', '—', '—', 0, '');
-      html += rowHTML('d3', i++, 'Overhead', 'Press Behind-the-Neck', '4x5', kgRange(cj,0.60,0.60), kgDefault(cj,0.60), 'https://www.catalystathletics.com/exercise/204/Press-Behind-The-Neck/');
-      html += rowHTML('d3', i++, 'Estab.', 'Snatch Balance', '5x2', kgRange(sn,0.60,0.60), kgDefault(sn,0.60), 'https://www.catalystathletics.com/exercise/90/Snatch-Balance/');
-      html += rowHTML('d3', i++, 'Pull Clean', 'Clean High Pull', '4x3', kgRange(cj,0.85,0.85), kgDefault(cj,0.85), 'https://www.catalystathletics.com/exercise/100/Clean-High-Pull/');
-      html += rowHTML('d3', i++, 'Acessório', 'Back Squat Jump', '4x5', '20 kg', 20, 'https://www.catalystathletics.com/exercise/353/Back-Squat-Jump/');
-      html += rowHTML('d3', i++, 'Core', 'Pallof + Side plank', '3x10 / 3x30–45s', '—', 0, '');
-      d3.innerHTML = html;
-
-      // DIA 4
-      i=0; html='';
-      html += rowHTML('d4', i++, 'Mobilidade', 'Panturrilha + glúteo + t-spine', '2–3 min', '—', 0, '');
-      html += rowHTML('d4', i++, 'Aquecimento', 'Tall Muscle Snatch', '4x3', kgRange(sn,0.35,0.35), kgDefault(sn,0.35), 'https://www.catalystathletics.com/exercise/543/Tall-Muscle-Snatch/');
-      html += rowHTML('d4', i++, 'Complexo', 'Hang Snatch High Pull + OHS', '6x (2+1)', kgRange(sn,0.55,0.55), kgDefault(sn,0.55), 'https://www.catalystathletics.com/exercise/403/Block-Snatch-High-Pull/');
-      html += rowHTML('d4', i++, 'Força', 'Front Squat', '5x3', kgRange(fs,0.725,0.725), kgDefault(fs,0.725), 'https://www.catalystathletics.com/exercise/78/Front-Squat/');
-      html += rowHTML('d4', i++, 'Técnica Jerk', 'Push Press BTN', '4x3', kgRange(cj,0.65,0.65), kgDefault(cj,0.65), 'https://www.catalystathletics.com/exercise/88/Push-Press-Behind-The-Neck/');
-      html += rowHTML('d4', i++, 'Mobilidade', 'Clean-Grip OHS (leve)', '3x5', kgRange(sn,0.35,0.35), kgDefault(sn,0.35), 'https://www.catalystathletics.com/exercise/420/Clean-Grip-Overhead-Squat/');
-      html += rowHTML('d4', i++, 'Core', 'Overhead carry (barra/PVC)', '3–4 x 20–30 m', '—', 0, '');
-      d4.innerHTML = html;
-    }
-
-    // Salvar 1RM
-    save.addEventListener('click', ()=>{
-      const data={};
-      ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id => data[id]=Number(document.getElementById(id).value||0));
-      localStorage.setItem(saveKey, JSON.stringify(data));
-      showTMs(); render();
+function renderHistory(){
+  const box = $('#hist'); const arr = JSON.parse(localStorage.getItem(sessKey)||'[]');
+  if(!arr.length){ box.innerHTML='<div class="muted">Sem sessões salvas ainda.</div>'; return; }
+  let html='';
+  arr.forEach((s,i)=>{
+    const feitos=s.itens.filter(x=>x.feito).length, total=s.itens.length;
+    const rpeMed = (s.itens.filter(x=>x.rpe).reduce((a,b)=>a+Number(b.rpe),0) / Math.max(1,s.itens.filter(x=>x.rpe).length)).toFixed(1);
+    const nomeDia = {d1:'Dia 1',d2:'Dia 2',d3:'Dia 3',d4:'Dia 4'}[s.dia]||s.dia;
+    html += `<details ${i===0?'open':''}><summary>${s.data} • ${nomeDia} — ${feitos}/${total} feitos • RPE médio ${isNaN(rpeMed)?'—':rpeMed}</summary>
+      <table><thead><tr><th>#</th><th>Exercício</th><th>Séries</th><th>Prescrito</th><th>Real</th><th>RPE</th><th>Feito</th></tr></thead><tbody>`;
+    s.itens.forEach(it=>{
+      html += `<tr><td>${it.idx}</td><td>${it.ex}</td><td>${it.series}</td><td>${it.prescrito}</td>
+        <td>${it.realKg||'—'}</td><td>${it.rpe||'—'}</td><td>${it.feito?'✔️':'—'}</td></tr>`;
     });
+    html += `</tbody></table></details>`;
+  });
+  box.innerHTML=html;
+}
+$('#exportCsv').addEventListener('click', ()=>{
+  const arr = JSON.parse(localStorage.getItem(sessKey)||'[]');
+  if(!arr.length){ alert('Sem sessões para exportar.'); return; }
+  const lines = ['data,dia,idx,exercicio,series,prescrito,real_kg,rpe,feito'];
+  arr.forEach(s=>s.itens.forEach(it=>lines.push([
+    s.data,s.dia,it.idx,`"${it.ex.replace(/"/g,'""')}"`,`"${it.series}"`,`"${it.prescrito}"`,it.realKg,it.rpe,(it.feito?1:0)
+  ].join(','))));
+  const blob = new Blob([lines.join('\n')], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'lpo-historico.csv'; a.click();
+});
+$('#clearHist').addEventListener('click', ()=>{ if(confirm('Apagar todo o histórico deste aparelho?')){ localStorage.removeItem(sessKey); renderHistory(); }});
 
-    // Salvar sessão por dia
-    function saveDay(dayId){
-      const dateEl = document.getElementById('date-'+dayId);
-      const date = dateEl && dateEl.value ? dateEl.value : today();
-      const tbody = document.getElementById(dayId);
-      const rows = [...tbody.querySelectorAll('tr')];
-      const data = rows.map(tr=>{
-        const tds = tr.querySelectorAll('td');
-        const real = tr.querySelector('input[type="number"]') ? Number(tr.querySelector('input[type="number"]').value||0) : 0;
-        const done = tr.querySelector('input[type="checkbox"]') ? tr.querySelector('input[type="checkbox"]').checked : false;
-        return {
-          bloco: tds[0].innerText,
-          ex: tds[1].innerText,
-          series: tds[2].innerText,
-          prescrito: tds[3].innerText,
-          alvoKg: Number(tr.getAttribute('data-target')||0),
-          realKg: real,
-          feito: done
-        };
-      });
-      const sess = { dia: dayId, data: date, tm: TMs(), itens: data, ts: Date.now() };
-      const arr = JSON.parse(localStorage.getItem(sessKey) || '[]');
-      arr.unshift(sess);
-      localStorage.setItem(sessKey, JSON.stringify(arr));
-      alert('Sessão salva: '+dayId+' ('+date+')');
-      renderHistory();
-    }
+/*** ===== Tabs ===== ***/
+function showTab(name){
+  ['treino','hist','config'].forEach(t=>{
+    $('#page-'+t).classList.toggle('hide', t!==name);
+    $('#tab-'+t).classList.toggle('active', t===name);
+  });
+  if(name==='hist') renderHistory();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+$('#tab-treino').addEventListener('click',()=>showTab('treino'));
+$('#tab-historico').addEventListener('click',()=>showTab('hist'));
+$('#tab-config').addEventListener('click',()=>showTab('config'));
 
-    document.querySelectorAll('[data-save-day]').forEach(btn=>{
-      btn.addEventListener('click', ()=> saveDay(btn.getAttribute('data-save-day')));
-    });
-
-    // Histórico
-    function renderHistory(){
-      const container = $('#hist');
-      const arr = JSON.parse(localStorage.getItem(sessKey) || '[]');
-      if(!arr.length){ container.innerHTML = '<div class="muted">Sem sessões salvas ainda.</div>'; return; }
-      let html='';
-      arr.slice(0,20).forEach((s,i)=>{
-        const feitos = s.itens.filter(x=>x.feito).length;
-        const total = s.itens.length;
-        const nomeDia = ({d1:'Dia 1',d2:'Dia 2',d3:'Dia 3',d4:'Dia 4'})[s.dia] || s.dia.toUpperCase();
-        html += `<details ${i===0?'open':''}><summary>${s.data} • ${nomeDia} — ${feitos}/${total} feitos</summary>
-          <table><thead><tr><th>#</th><th>Exercício</th><th>Séries</th><th>Prescrito</th><th>Real</th><th>Feito</th></tr></thead><tbody>`;
-        s.itens.forEach((it,j)=>{
-          html += `<tr><td>${j+1}</td><td>${it.ex}</td><td>${it.series}</td><td>${it.prescrito}</td><td>${it.realKg||'—'}</td><td>${it.feito?'✔️':'—'}</td></tr>`;
-        });
-        html += `</tbody></table></details>`;
-      });
-      container.innerHTML = html;
-    }
-
-    // Tabs
-    function showTab(t){
-      if(t==='treino'){ $('#page-treino').classList.remove('hide'); $('#page-historico').classList.add('hide'); $('#tab-treino').classList.add('active'); $('#tab-historico').classList.remove('active'); }
-      else { $('#page-historico').classList.remove('hide'); $('#page-treino').classList.add('hide'); $('#tab-historico').classList.add('active'); $('#tab-treino').classList.remove('active'); renderHistory(); }
-      window.scrollTo({top:0,behavior:'smooth'});
-    }
-    $('#tab-treino').addEventListener('click', ()=>showTab('treino'));
-    $('#tab-historico').addEventListener('click', ()=>showTab('hist'));
-
-    // Init
-    loadSaved(); showTMs(); render();
-
-    // Re-render ao editar 1RM
-    ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>{
-      document.getElementById(id).addEventListener('input', ()=>{ showTMs(); render(); });
-    });
-  </script>
-
-  <script>
-    // PWA
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js").catch(console.error);
-      });
-    }
-  </script>
+/*** ===== PWA register ===== ***/
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(console.error));
+}
+</script>
 </body>
 </html>
