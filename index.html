@@ -8,32 +8,49 @@
   <meta name="theme-color" content="#0b0e14">
   <link rel="apple-touch-icon" href="icon-512.png">
   <style>
-    *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0b0e14;color:#eaeef5}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0b0e14;color:#eaeef5}
     header{position:sticky;top:0;background:#121826;border-bottom:1px solid #22304a;padding:14px 16px;z-index:2}
-    h1{font-size:18px;margin:0}main{max-width:900px;margin:0 auto;padding:16px}
-    .card{background:#121826;border:1px solid #22304a;border-radius:12px;padding:14px;margin-bottom:14px}
-    .grid{display:grid;gap:10px}.grid-2{grid-template-columns:1fr 1fr}
+    h1{font-size:18px;margin:0}
+    main{max-width:980px;margin:0 auto;padding:16px}
+    .tabs{display:flex;gap:8px;margin-top:8px}
+    .tab{border:1px solid #2a3b5e;background:#0f1420;color:#eaeef5;border-radius:999px;padding:8px 12px;cursor:pointer}
+    .tab.active{background:#2663ff;border-color:#2663ff}
+    .card{background:#121826;border:1px solid #22304a;border-radius:12px;padding:14px;margin:14px 0}
+    .grid{display:grid;gap:10px}
+    .grid-2{grid-template-columns:1fr 1fr}
     label{font-size:12px;color:#9fb3c8}
-    input[type=number]{width:100%;padding:10px;border-radius:8px;border:1px solid #2a3b5e;background:#0f1420;color:#eaeef5}
+    input[type=number],input[type=date]{width:100%;padding:10px;border-radius:8px;border:1px solid #2a3b5e;background:#0f1420;color:#eaeef5}
     .btn{display:inline-flex;align-items:center;gap:8px;background:#2663ff;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
-    .btn:active{opacity:.9}.muted{color:#9fb3c8;font-size:12px}
+    .btn:active{opacity:.9}
+    .muted{color:#9fb3c8;font-size:12px}
     details{background:#0f1420;border:1px solid #22304a;border-radius:10px;margin:8px 0;overflow:hidden}
     details>summary{cursor:pointer;list-style:none;padding:12px 14px;font-weight:700}
     details>summary::-webkit-details-marker{display:none}
     table{width:100%;border-collapse:collapse;margin:8px 0;border-radius:8px;overflow:hidden}
-    th,td{border-bottom:1px solid #22304a;padding:10px;text-align:left;font-size:14px}
-    th{background:#101726}code{background:#101726;border:1px solid #22304a;padding:2px 6px;border-radius:6px}
-    .row{display:flex;gap:10px;flex-wrap:wrap}.pill{border:1px solid #2a3b5e;padding:2px 8px;border-radius:999px;font-size:12px;color:#9fb3c8}
+    th,td{border-bottom:1px solid #22304a;padding:10px;text-align:left;font-size:14px;vertical-align:middle}
+    th{background:#101726}
+    code{background:#101726;border:1px solid #22304a;padding:2px 6px;border-radius:6px}
+    .pill{border:1px solid #2a3b5e;padding:2px 8px;border-radius:999px;font-size:12px;color:#9fb3c8;margin-right:6px}
     footer{color:#9fb3c8;text-align:center;padding:24px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .right{margin-left:auto}
+    .hide{display:none}
   </style>
 </head>
 <body>
   <header>
-    <h1>LPO – Semana 1 • Edu Bacci</h1>
-    <div class="muted">Preencha seus 1RMs. O app calcula TM (90%) e pesos. Dados salvos no aparelho.</div>
+    <h1>LPO – Edu Bacci</h1>
+    <div class="tabs">
+      <button id="tab-treino" class="tab active">Treino</button>
+      <button id="tab-historico" class="tab">Histórico</button>
+    </div>
+    <div class="muted">Preencha seus 1RMs. O app calcula TM (90%) e pesos. Tudo fica salvo no aparelho (offline).</div>
   </header>
+
   <main>
-    <section class="card">
+    <!-- BLOCO CONFIG 1RM -->
+    <section class="card" id="cfg">
       <h3 style="margin:0 0 8px 0">1RM → TM (90%)</h3>
       <div class="grid grid-2">
         <div><label>Snatch – 1RM (kg)</label><input type="number" id="sn1" step="0.5" value="50"></div>
@@ -45,84 +62,302 @@
         <div><label>Overhead Press – 1RM (kg)</label><input type="number" id="oh1" step="0.5" value="64"></div>
       </div>
       <div class="row" style="margin-top:12px">
-        <button class="btn" id="save">Salvar</button>
-        <span class="pill" id="tmSn"></span><span class="pill" id="tmCj"></span><span class="pill" id="tmFs"></span>
-        <span class="pill" id="tmBs"></span><span class="pill" id="tmDl"></span><span class="pill" id="tmBp"></span><span class="pill" id="tmOh"></span>
+        <button class="btn" id="save">Salvar 1RMs</button>
+        <span class="pill" id="tmSn"></span>
+        <span class="pill" id="tmCj"></span>
+        <span class="pill" id="tmFs"></span>
+        <span class="pill" id="tmBs"></span>
+        <span class="pill" id="tmDl"></span>
+        <span class="pill" id="tmBp"></span>
+        <span class="pill" id="tmOh"></span>
       </div>
       <div class="muted" style="margin-top:8px">TM = 90% do 1RM. Arredondado a <code>0,5 kg</code>.</div>
     </section>
-    <section class="card">
-      <h3 style="margin:0 0 8px 0">Semana 1</h3>
-      <div class="muted">Toque para abrir cada dia. Links abrem em nova aba.</div>
-      <details open><summary>DIA 1 — Snatch + Front Squat</summary>
-        <table><thead><tr><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Peso (kg)</th><th>Link</th></tr></thead>
-        <tbody id="d1"></tbody></table></details>
-      <details><summary>DIA 2 — Clean & Jerk + Back Squat</summary>
-        <table><thead><tr><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Peso (kg)</th><th>Link</th></tr></thead>
-        <tbody id="d2"></tbody></table></details>
-      <details><summary>DIA 3 — Estabilidade Overhead + Puxadas</summary>
-        <table><thead><tr><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Peso (kg)</th><th>Link</th></tr></thead>
-        <tbody id="d3"></tbody></table></details>
-      <details><summary>DIA 4 — Complexos técnicos + Front Squat</summary>
-        <table><thead><tr><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Peso (kg)</th><th>Link</th></tr></thead>
-        <tbody id="d4"></tbody></table></details>
+
+    <!-- PÁGINA TREINO -->
+    <section id="page-treino">
+      <section class="card">
+        <h3 style="margin:0 0 8px 0">Semana 1</h3>
+        <div class="muted">Toque para abrir cada dia. Preencha “Real (kg)” e marque “Feito”.</div>
+
+        <!-- DIA 1 -->
+        <details open>
+          <summary>DIA 1 — Snatch + Front Squat</summary>
+          <div class="row">
+            <label>Data</label><input type="date" id="date-d1">
+            <button class="btn right" data-save-day="d1">Salvar sessão do Dia 1</button>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Prescrito (kg)</th><th>Real (kg)</th><th>Feito</th><th>Link</th></tr>
+            </thead>
+            <tbody id="d1"></tbody>
+          </table>
+        </details>
+
+        <!-- DIA 2 -->
+        <details>
+          <summary>DIA 2 — Clean & Jerk + Back Squat</summary>
+          <div class="row">
+            <label>Data</label><input type="date" id="date-d2">
+            <button class="btn right" data-save-day="d2">Salvar sessão do Dia 2</button>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Prescrito (kg)</th><th>Real (kg)</th><th>Feito</th><th>Link</th></tr>
+            </thead>
+            <tbody id="d2"></tbody>
+          </table>
+        </details>
+
+        <!-- DIA 3 -->
+        <details>
+          <summary>DIA 3 — Estabilidade Overhead + Puxadas</summary>
+          <div class="row">
+            <label>Data</label><input type="date" id="date-d3">
+            <button class="btn right" data-save-day="d3">Salvar sessão do Dia 3</button>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Prescrito (kg)</th><th>Real (kg)</th><th>Feito</th><th>Link</th></tr>
+            </thead>
+            <tbody id="d3"></tbody>
+          </table>
+        </details>
+
+        <!-- DIA 4 -->
+        <details>
+          <summary>DIA 4 — Complexos técnicos + Front Squat</summary>
+          <div class="row">
+            <label>Data</label><input type="date" id="date-d4">
+            <button class="btn right" data-save-day="d4">Salvar sessão do Dia 4</button>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Prescrito (kg)</th><th>Real (kg)</th><th>Feito</th><th>Link</th></tr>
+            </thead>
+            <tbody id="d4"></tbody>
+          </table>
+        </details>
+      </section>
+
+      <section class="card">
+        <h3 style="margin-top:0">Observações</h3>
+        <ul>
+          <li>Comece pelo menor peso da faixa e progrida mantendo técnica.</li>
+          <li>Quebrou técnica? Reduza 2,5–5%.</li>
+        </ul>
+      </section>
     </section>
-    <section class="card">
-      <h3 style="margin-top:0">Observações</h3>
-      <ul><li>Comece pelo menor peso da faixa e progrida mantendo técnica.</li><li>Quebrou técnica? Reduza 2,5–5%.</li></ul>
+
+    <!-- PÁGINA HISTÓRICO -->
+    <section id="page-historico" class="hide">
+      <section class="card">
+        <h3 style="margin:0 0 8px 0">Histórico de sessões</h3>
+        <div id="hist"></div>
+        <div class="muted">Apenas neste aparelho. Em breve: exportar CSV / nuvem.</div>
+      </section>
     </section>
   </main>
+
   <footer>© LPO – Edu Bacci. Offline. Dados locais.</footer>
+
   <script>
+    // Helpers
     const $ = s => document.querySelector(s);
     const round05 = v => Math.round(v*2)/2;
     const perc = (tm, p) => round05(tm * p);
+    const today = () => new Date().toISOString().slice(0,10);
+
+    // Storage keys
     const saveKey = 'lpo_tm_v1';
-    function loadSaved(){try{const s=JSON.parse(localStorage.getItem(saveKey)||'{}');['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>{if(s[id]!=null) document.getElementById(id).value=s[id];});}catch(e){}}
-    function TMs(){const sn=Number(sn1.value||0)*0.9,cj=Number(cj1.value||0)*0.9,fs=Number(fs1.value||0)*0.9,bs=Number(bs1.value||0)*0.9,dl=Number(dl1.value||0)*0.9,bp=Number(bp1.value||0)*0.9,oh=Number(oh1.value||0)*0.9;return {sn,cj,fs,bs,dl,bp,oh};}
-    function showTMs(){const {sn,cj,fs,bs,dl,bp,oh}=TMs(); tmSn.textContent='TM Snatch: '+round05(sn)+' kg'; tmCj.textContent='TM C&J: '+round05(cj)+' kg'; tmFs.textContent='TM Front: '+round05(fs)+' kg'; tmBs.textContent='TM Back: '+round05(bs)+' kg'; tmDl.textContent='TM Terra: '+round05(dl)+' kg'; tmBp.textContent='TM Supino: '+round05(bp)+' kg'; tmOh.textContent='TM OHP: '+round05(oh)+' kg';}
-    function kgRange(tm,pmin,pmax){const a=perc(tm,pmin),b=perc(tm,pmax);return (pmin===pmax)?(a+''):(a+' – '+b);}
-    function render(){const {sn,cj,fs,bs,dl}=TMs();
-      d1.innerHTML = `
-        <tr><td>Mobilidade</td><td>Panturrilha, t-spine, Couch</td><td>2–3 min</td><td>—</td><td><a target=_blank href='https://www.youtube.com/watch?v=ulgAOykAgV4'>Couch</a></td></tr>
-        <tr><td>Aquecimento</td><td>Burgener Warm‑Up (Snatch)</td><td>1–2 voltas</td><td>—</td><td><a target=_blank href='https://www.youtube.com/watch?v=4wLDeeHds58'>Burgener</a></td></tr>
-        <tr><td>Técnico</td><td>Tall Snatch</td><td>5x3</td><td>${kgRange(sn,0.40,0.55)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/217/Tall-Snatch/'>vídeo</a></td></tr>
-        <tr><td>LPO força</td><td>Overhead Squat</td><td>4x3</td><td>${kgRange(sn,0.55,0.55)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/79/Overhead-Squat/'>vídeo</a></td></tr>
-        <tr><td>Força</td><td>Front Squat</td><td>4x5</td><td>${kgRange(fs,0.70,0.70)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/78/Front-Squat/'>vídeo</a></td></tr>
-        <tr><td>Pull Snatch</td><td>Snatch High Pull</td><td>4x3</td><td>${kgRange(sn,0.75,0.75)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/99/Snatch-High-Pull/'>vídeo</a></td></tr>
-        <tr><td>Acessório</td><td>1¼ Back Squat</td><td>3x5</td><td>${kgRange(bs,0.55,0.60)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/168/1-14-Back-Squat/'>vídeo</a></td></tr>
-        <tr><td>Core</td><td>Prancha + Hollow</td><td>3x30–45s</td><td>—</td><td>—</td></tr>`;
-      d2.innerHTML = `
-        <tr><td>Mobilidade</td><td>Dorsiflexão (knee‑to‑wall), t‑spine</td><td>2–3 min</td><td>—</td><td><a target=_blank href='https://www.physio-pedia.com/Knee_to_Wall_Test'>knee‑to‑wall</a></td></tr>
-        <tr><td>Aquecimento</td><td>Jerk dip/drive</td><td>2–3x</td><td>—</td><td>—</td></tr>
-        <tr><td>Técnico</td><td>Clean Pull</td><td>4x3</td><td>${kgRange(cj,0.85,0.85)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/98/Clean-Pull/'>vídeo</a></td></tr>
-        <tr><td>LPO</td><td>Clean & Jerk (1+2)</td><td>6x</td><td>${kgRange(cj,0.60,0.60)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/86/Clean-Jerk/'>vídeo</a></td></tr>
-        <tr><td>Força</td><td>Back Squat</td><td>5x3</td><td>${kgRange(bs,0.70,0.70)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/77/Back-Squat/'>vídeo</a></td></tr>
-        <tr><td>Overhead</td><td>Push Press</td><td>4x4</td><td>${kgRange(cj,0.70,0.70)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/87/Push-Press/'>vídeo</a></td></tr>
-        <tr><td>Acessório</td><td>Romanian Deadlift</td><td>3x8</td><td>${kgRange(dl,0.40,0.40)}</td><td>—</td></tr>
-        <tr><td>Core</td><td>Farmer Carry pesado</td><td>4x20–30 m</td><td>—</td><td>—</td></tr>`;
-      d3.innerHTML = `
-        <tr><td>Mobilidade</td><td>PVC dislocates + Couch</td><td>2–3 min</td><td>—</td><td><a target=_blank href='https://www.youtube.com/watch?v=j32NGzthtN4'>PVC</a></td></tr>
-        <tr><td>Aquecimento</td><td>Saltos + agacho com pausa</td><td>—</td><td>—</td><td>—</td></tr>
-        <tr><td>Overhead</td><td>Press Behind‑the‑Neck</td><td>4x5</td><td>${kgRange(cj,0.60,0.60)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/204/Press-Behind-The-Neck/'>vídeo</a></td></tr>
-        <tr><td>Estab.</td><td>Snatch Balance</td><td>5x2</td><td>${kgRange(sn,0.60,0.60)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/90/Snatch-Balance/'>vídeo</a></td></tr>
-        <tr><td>Pull Clean</td><td>Clean High Pull</td><td>4x3</td><td>${kgRange(cj,0.85,0.85)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/100/Clean-High-Pull/'>vídeo</a></td></tr>
-        <tr><td>Acessório</td><td>Back Squat Jump</td><td>4x5</td><td>20 kg</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/353/Back-Squat-Jump/'>vídeo</a></td></tr>
-        <tr><td>Core</td><td>Pallof + Side plank</td><td>3x10 / 3x30–45s</td><td>—</td><td>—</td></tr>`;
-      d4.innerHTML = `
-        <tr><td>Mobilidade</td><td>Panturrilha + glúteo + t‑spine</td><td>2–3 min</td><td>—</td><td>—</td></tr>
-        <tr><td>Aquecimento</td><td>Tall Muscle Snatch</td><td>4x3</td><td>${kgRange(sn,0.35,0.35)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/543/Tall-Muscle-Snatch/'>vídeo</a></td></tr>
-        <tr><td>Complexo</td><td>Hang Snatch High Pull + OHS</td><td>6x (2+1)</td><td>${kgRange(sn,0.55,0.55)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/403/Block-Snatch-High-Pull/'>vídeo</a></td></tr>
-        <tr><td>Força</td><td>Front Squat</td><td>5x3</td><td>${kgRange(fs,0.725,0.725)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/78/Front-Squat/'>vídeo</a></td></tr>
-        <tr><td>Técnica Jerk</td><td>Push Press BTN</td><td>4x3</td><td>${kgRange(cj,0.65,0.65)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/88/Push-Press-Behind-The-Neck/'>vídeo</a></td></tr>
-        <tr><td>Mobilidade</td><td>Clean‑Grip OHS (leve)</td><td>3x5</td><td>${kgRange(sn,0.35,0.35)}</td><td><a target=_blank href='https://www.catalystathletics.com/exercise/420/Clean-Grip-Overhead-Squat/'>vídeo</a></td></tr>
-        <tr><td>Core</td><td>Overhead carry (barra/PVC)</td><td>3–4 x 20–30 m</td><td>—</td><td>—</td></tr>`;
+    const sessKey = 'lpo_sessions_v1';
+
+    // TMs
+    function loadSaved(){
+      try{
+        const s = JSON.parse(localStorage.getItem(saveKey)||'{}');
+        ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>{
+          if(s[id]!=null) document.getElementById(id).value = s[id];
+        });
+      }catch(e){}
     }
-    save.addEventListener('click', ()=>{const data={};['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>data[id]=Number(document.getElementById(id).value||0));localStorage.setItem(saveKey,JSON.stringify(data));showTMs();render();});
-    ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>{document.getElementById(id).addEventListener('input', ()=>{showTMs();render();});});
+    function TMs(){
+      const sn = Number(sn1.value||0)*0.9,
+            cj = Number(cj1.value||0)*0.9,
+            fs = Number(fs1.value||0)*0.9,
+            bs = Number(bs1.value||0)*0.9,
+            dl = Number(dl1.value||0)*0.9,
+            bp = Number(bp1.value||0)*0.9,
+            oh = Number(oh1.value||0)*0.9;
+      return {sn,cj,fs,bs,dl,bp,oh};
+    }
+    function showTMs(){
+      const {sn,cj,fs,bs,dl,bp,oh} = TMs();
+      tmSn.textContent = 'TM Snatch: ' + round05(sn) + ' kg';
+      tmCj.textContent = 'TM C&J: ' + round05(cj) + ' kg';
+      tmFs.textContent = 'TM Front: ' + round05(fs) + ' kg';
+      tmBs.textContent = 'TM Back: ' + round05(bs) + ' kg';
+      tmDl.textContent = 'TM Terra: ' + round05(dl) + ' kg';
+      tmBp.textContent = 'TM Supino: ' + round05(bp) + ' kg';
+      tmOh.textContent = 'TM OHP: ' + round05(oh) + ' kg';
+    }
+
+    // Render helpers
+    function kgRange(tm,pmin,pmax){ // texto
+      const a=perc(tm,pmin), b=perc(tm,pmax);
+      return (pmin===pmax)?(a+''):(a+' – '+b);
+    }
+    function kgDefault(tm,pmin){ // valor inicial do campo "Real"
+      return perc(tm,pmin);
+    }
+    function rowHTML(day, idx, bloco, ex, sr, prescTxt, prescKg, link){
+      const realId = `${day}-real-${idx}`;
+      const doneId = `${day}-done-${idx}`;
+      const linkHtml = link ? `<a target=_blank href="${link}">vídeo</a>` : '—';
+      return `<tr data-target="${prescKg}">
+        <td>${bloco}</td>
+        <td>${ex}</td>
+        <td>${sr}</td>
+        <td>${prescTxt}</td>
+        <td><input type="number" step="0.5" id="${realId}" value="${prescKg}"></td>
+        <td style="text-align:center"><input type="checkbox" id="${doneId}"></td>
+        <td>${linkHtml}</td>
+      </tr>`;
+    }
+
+    function render(){
+      const {sn,cj,fs,bs,dl} = TMs();
+      // Set default dates
+      ['d1','d2','d3','d4'].forEach(d => { const el = document.getElementById('date-'+d); if(el && !el.value) el.value = today(); });
+
+      // DIA 1
+      let i=0, html='';
+      html += rowHTML('d1', i++, 'Mobilidade', 'Panturrilha, t-spine, Couch', '2–3 min', '—', 0, 'https://www.youtube.com/watch?v=ulgAOykAgV4');
+      html += rowHTML('d1', i++, 'Aquecimento', 'Burgener Warm-Up (Snatch)', '1–2 voltas', '—', 0, 'https://www.youtube.com/watch?v=4wLDeeHds58');
+      html += rowHTML('d1', i++, 'Técnico', 'Tall Snatch', '5x3', kgRange(sn,0.40,0.55), kgDefault(sn,0.40), 'https://www.catalystathletics.com/exercise/217/Tall-Snatch/');
+      html += rowHTML('d1', i++, 'LPO força', 'Overhead Squat', '4x3', kgRange(sn,0.55,0.55), kgDefault(sn,0.55), 'https://www.catalystathletics.com/exercise/79/Overhead-Squat/');
+      html += rowHTML('d1', i++, 'Força', 'Front Squat', '4x5', kgRange(fs,0.70,0.70), kgDefault(fs,0.70), 'https://www.catalystathletics.com/exercise/78/Front-Squat/');
+      html += rowHTML('d1', i++, 'Pull Snatch', 'Snatch High Pull', '4x3', kgRange(sn,0.75,0.75), kgDefault(sn,0.75), 'https://www.catalystathletics.com/exercise/99/Snatch-High-Pull/');
+      html += rowHTML('d1', i++, 'Acessório', '1¼ Back Squat', '3x5', kgRange(bs,0.55,0.60), kgDefault(bs,0.55), 'https://www.catalystathletics.com/exercise/168/1-14-Back-Squat/');
+      html += rowHTML('d1', i++, 'Core', 'Prancha + Hollow', '3x30–45s', '—', 0, '');
+      d1.innerHTML = html;
+
+      // DIA 2
+      i=0; html='';
+      html += rowHTML('d2', i++, 'Mobilidade', 'Dorsiflexão (knee-to-wall), t-spine', '2–3 min', '—', 0, 'https://www.physio-pedia.com/Knee_to_Wall_Test');
+      html += rowHTML('d2', i++, 'Aquecimento', 'Jerk dip/drive', '2–3x', '—', 0, '');
+      html += rowHTML('d2', i++, 'Técnico', 'Clean Pull', '4x3', kgRange(cj,0.85,0.85), kgDefault(cj,0.85), 'https://www.catalystathletics.com/exercise/98/Clean-Pull/');
+      html += rowHTML('d2', i++, 'LPO', 'Clean & Jerk (1+2)', '6x', kgRange(cj,0.60,0.60), kgDefault(cj,0.60), 'https://www.catalystathletics.com/exercise/86/Clean-Jerk/');
+      html += rowHTML('d2', i++, 'Força', 'Back Squat', '5x3', kgRange(bs,0.70,0.70), kgDefault(bs,0.70), 'https://www.catalystathletics.com/exercise/77/Back-Squat/');
+      html += rowHTML('d2', i++, 'Overhead', 'Push Press', '4x4', kgRange(cj,0.70,0.70), kgDefault(cj,0.70), 'https://www.catalystathletics.com/exercise/87/Push-Press/');
+      html += rowHTML('d2', i++, 'Acessório', 'Romanian Deadlift', '3x8', kgRange(dl,0.40,0.40), kgDefault(dl,0.40), '');
+      html += rowHTML('d2', i++, 'Core', 'Farmer Carry pesado', '4x20–30 m', '—', 0, '');
+      d2.innerHTML = html;
+
+      // DIA 3
+      i=0; html='';
+      html += rowHTML('d3', i++, 'Mobilidade', 'PVC dislocates + Couch', '2–3 min', '—', 0, 'https://www.youtube.com/watch?v=j32NGzthtN4');
+      html += rowHTML('d3', i++, 'Aquecimento', 'Saltos + agacho com pausa', '—', '—', 0, '');
+      html += rowHTML('d3', i++, 'Overhead', 'Press Behind-the-Neck', '4x5', kgRange(cj,0.60,0.60), kgDefault(cj,0.60), 'https://www.catalystathletics.com/exercise/204/Press-Behind-The-Neck/');
+      html += rowHTML('d3', i++, 'Estab.', 'Snatch Balance', '5x2', kgRange(sn,0.60,0.60), kgDefault(sn,0.60), 'https://www.catalystathletics.com/exercise/90/Snatch-Balance/');
+      html += rowHTML('d3', i++, 'Pull Clean', 'Clean High Pull', '4x3', kgRange(cj,0.85,0.85), kgDefault(cj,0.85), 'https://www.catalystathletics.com/exercise/100/Clean-High-Pull/');
+      html += rowHTML('d3', i++, 'Acessório', 'Back Squat Jump', '4x5', '20 kg', 20, 'https://www.catalystathletics.com/exercise/353/Back-Squat-Jump/');
+      html += rowHTML('d3', i++, 'Core', 'Pallof + Side plank', '3x10 / 3x30–45s', '—', 0, '');
+      d3.innerHTML = html;
+
+      // DIA 4
+      i=0; html='';
+      html += rowHTML('d4', i++, 'Mobilidade', 'Panturrilha + glúteo + t-spine', '2–3 min', '—', 0, '');
+      html += rowHTML('d4', i++, 'Aquecimento', 'Tall Muscle Snatch', '4x3', kgRange(sn,0.35,0.35), kgDefault(sn,0.35), 'https://www.catalystathletics.com/exercise/543/Tall-Muscle-Snatch/');
+      html += rowHTML('d4', i++, 'Complexo', 'Hang Snatch High Pull + OHS', '6x (2+1)', kgRange(sn,0.55,0.55), kgDefault(sn,0.55), 'https://www.catalystathletics.com/exercise/403/Block-Snatch-High-Pull/');
+      html += rowHTML('d4', i++, 'Força', 'Front Squat', '5x3', kgRange(fs,0.725,0.725), kgDefault(fs,0.725), 'https://www.catalystathletics.com/exercise/78/Front-Squat/');
+      html += rowHTML('d4', i++, 'Técnica Jerk', 'Push Press BTN', '4x3', kgRange(cj,0.65,0.65), kgDefault(cj,0.65), 'https://www.catalystathletics.com/exercise/88/Push-Press-Behind-The-Neck/');
+      html += rowHTML('d4', i++, 'Mobilidade', 'Clean-Grip OHS (leve)', '3x5', kgRange(sn,0.35,0.35), kgDefault(sn,0.35), 'https://www.catalystathletics.com/exercise/420/Clean-Grip-Overhead-Squat/');
+      html += rowHTML('d4', i++, 'Core', 'Overhead carry (barra/PVC)', '3–4 x 20–30 m', '—', 0, '');
+      d4.innerHTML = html;
+    }
+
+    // Salvar 1RM
+    save.addEventListener('click', ()=>{
+      const data={};
+      ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id => data[id]=Number(document.getElementById(id).value||0));
+      localStorage.setItem(saveKey, JSON.stringify(data));
+      showTMs(); render();
+    });
+
+    // Salvar sessão por dia
+    function saveDay(dayId){
+      const dateEl = document.getElementById('date-'+dayId);
+      const date = dateEl && dateEl.value ? dateEl.value : today();
+      const tbody = document.getElementById(dayId);
+      const rows = [...tbody.querySelectorAll('tr')];
+      const data = rows.map(tr=>{
+        const tds = tr.querySelectorAll('td');
+        const real = tr.querySelector('input[type="number"]') ? Number(tr.querySelector('input[type="number"]').value||0) : 0;
+        const done = tr.querySelector('input[type="checkbox"]') ? tr.querySelector('input[type="checkbox"]').checked : false;
+        return {
+          bloco: tds[0].innerText,
+          ex: tds[1].innerText,
+          series: tds[2].innerText,
+          prescrito: tds[3].innerText,
+          alvoKg: Number(tr.getAttribute('data-target')||0),
+          realKg: real,
+          feito: done
+        };
+      });
+      const sess = { dia: dayId, data: date, tm: TMs(), itens: data, ts: Date.now() };
+      const arr = JSON.parse(localStorage.getItem(sessKey) || '[]');
+      arr.unshift(sess);
+      localStorage.setItem(sessKey, JSON.stringify(arr));
+      alert('Sessão salva: '+dayId+' ('+date+')');
+      renderHistory();
+    }
+
+    document.querySelectorAll('[data-save-day]').forEach(btn=>{
+      btn.addEventListener('click', ()=> saveDay(btn.getAttribute('data-save-day')));
+    });
+
+    // Histórico
+    function renderHistory(){
+      const container = $('#hist');
+      const arr = JSON.parse(localStorage.getItem(sessKey) || '[]');
+      if(!arr.length){ container.innerHTML = '<div class="muted">Sem sessões salvas ainda.</div>'; return; }
+      let html='';
+      arr.slice(0,20).forEach((s,i)=>{
+        const feitos = s.itens.filter(x=>x.feito).length;
+        const total = s.itens.length;
+        const nomeDia = ({d1:'Dia 1',d2:'Dia 2',d3:'Dia 3',d4:'Dia 4'})[s.dia] || s.dia.toUpperCase();
+        html += `<details ${i===0?'open':''}><summary>${s.data} • ${nomeDia} — ${feitos}/${total} feitos</summary>
+          <table><thead><tr><th>#</th><th>Exercício</th><th>Séries</th><th>Prescrito</th><th>Real</th><th>Feito</th></tr></thead><tbody>`;
+        s.itens.forEach((it,j)=>{
+          html += `<tr><td>${j+1}</td><td>${it.ex}</td><td>${it.series}</td><td>${it.prescrito}</td><td>${it.realKg||'—'}</td><td>${it.feito?'✔️':'—'}</td></tr>`;
+        });
+        html += `</tbody></table></details>`;
+      });
+      container.innerHTML = html;
+    }
+
+    // Tabs
+    function showTab(t){
+      if(t==='treino'){ $('#page-treino').classList.remove('hide'); $('#page-historico').classList.add('hide'); $('#tab-treino').classList.add('active'); $('#tab-historico').classList.remove('active'); }
+      else { $('#page-historico').classList.remove('hide'); $('#page-treino').classList.add('hide'); $('#tab-historico').classList.add('active'); $('#tab-treino').classList.remove('active'); renderHistory(); }
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    $('#tab-treino').addEventListener('click', ()=>showTab('treino'));
+    $('#tab-historico').addEventListener('click', ()=>showTab('hist'));
+
+    // Init
     loadSaved(); showTMs(); render();
+
+    // Re-render ao editar 1RM
+    ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>{
+      document.getElementById(id).addEventListener('input', ()=>{ showTMs(); render(); });
+    });
   </script>
+
   <script>
+    // PWA
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
         navigator.serviceWorker.register("./service-worker.js").catch(console.error);
