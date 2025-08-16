@@ -19,16 +19,17 @@
   .card{background:#121826;border:1px solid #22304a;border-radius:12px;padding:14px;margin:14px 0}
   .grid{display:grid;gap:10px}
   .grid-2{grid-template-columns:1fr 1fr}
+  .grid-3{grid-template-columns:1fr 1fr 1fr}
   label{font-size:12px;color:#9fb3c8}
-  input[type=number],input[type=date]{width:100%;padding:10px;border-radius:8px;border:1px solid #2a3b5e;background:#0f1420;color:#eaeef5}
-  select{width:100%;padding:10px;border-radius:8px;border:1px solid #2a3b5e;background:#0f1420;color:#eaeef5}
+  input[type=number],input[type=date],select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #2a3b5e;background:#0f1420;color:#eaeef5}
+  textarea{min-height:110px}
   .btn{display:inline-flex;align-items:center;gap:8px;background:#2663ff;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
   .btn.ghost{background:#0f1420;border:1px solid #2a3b5e}
   .muted{color:#9fb3c8;font-size:12px}
   details{background:#0f1420;border:1px solid #22304a;border-radius:10px;margin:8px 0;overflow:hidden}
   details>summary{cursor:pointer;list-style:none;padding:12px 14px;font-weight:700}
   details>summary::-webkit-details-marker{display:none}
-  table{width:100%;border-collapse:collapse;margin:8px 0;border-radius:8px;overflow:hidden;min-width:850px}
+  table{width:100%;border-collapse:collapse;margin:8px 0;border-radius:8px;overflow:hidden;min-width:860px}
   th,td{border-bottom:1px solid #22304a;padding:8px;text-align:left;font-size:14px;vertical-align:middle}
   th{background:#101726}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -36,7 +37,7 @@
   .pill{border:1px solid #2a3b5e;padding:2px 8px;border-radius:999px;font-size:12px;color:#9fb3c8;margin-right:6px}
   .timer{font-variant-numeric:tabular-nums}
   .hide{display:none}
-  .done{background:#1f2940} /* linha marcada */
+  .done{background:#1f2940}
   footer{color:#9fb3c8;text-align:center;padding:24px}
 </style>
 </head>
@@ -47,6 +48,7 @@
     <button id="tab-treino" class="tab active">Treino</button>
     <button id="tab-historico" class="tab">Histórico</button>
     <button id="tab-config" class="tab">Config 1RM</button>
+    <button id="tab-templates" class="tab">Templates</button>
   </div>
   <div class="muted">Interativo • offline • salva no aparelho. Ajuste cargas, marque feito, RPE, timers e salve a sessão.</div>
 </header>
@@ -72,11 +74,88 @@
     <div class="muted" style="margin-top:8px">TM = 90% do 1RM. Os pesos do treino se atualizam automaticamente.</div>
   </section>
 
+  <!-- TEMPLATES -->
+  <section id="page-templates" class="card hide">
+    <h3 style="margin:0 0 8px">Templates de treino</h3>
+    <div class="grid grid-2">
+      <div>
+        <label>Escolha o template</label>
+        <select id="planSelect"></select>
+      </div>
+      <div>
+        <label>Descrição</label>
+        <div id="planDesc" class="muted">Selecione um plano para ver a descrição.</div>
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="applyPlan">Aplicar template</button>
+      <button class="btn ghost" id="resetPlan">Voltar para padrão</button>
+      <span class="pill">Plano atual: <b id="planNameNow">—</b></span>
+    </div>
+
+    <hr style="opacity:.2;margin:18px 0">
+
+    <h4 style="margin:0 0 8px">Calculadora de 1RM</h4>
+    <div class="grid grid-3">
+      <div>
+        <label>Levantamento</label>
+        <select id="calcLift">
+          <option value="sn">Snatch</option>
+          <option value="cj">Clean & Jerk</option>
+          <option value="fs">Front Squat</option>
+          <option value="bs">Back Squat</option>
+          <option value="dl">Deadlift</option>
+          <option value="bp">Bench Press</option>
+          <option value="oh">Overhead Press</option>
+        </select>
+      </div>
+      <div>
+        <label>Peso usado (kg)</label>
+        <input type="number" id="calcWeight" step="0.5" value="60">
+      </div>
+      <div>
+        <label>Repetições (1–10)</label>
+        <input type="number" id="calcReps" min="1" max="10" value="3">
+      </div>
+    </div>
+    <div class="grid grid-2" style="margin-top:8px">
+      <div>
+        <label>Fórmula</label>
+        <select id="calcFormula">
+          <option value="brzycki">Brzycki</option>
+          <option value="epley">Epley</option>
+        </select>
+      </div>
+      <div>
+        <label>1RM estimada (kg)</label>
+        <input type="number" id="calcOut" readonly>
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="calcDo">Calcular</button>
+      <button class="btn ghost" id="calcApply">Aplicar ao 1RM</button>
+      <div class="muted">Isso vai preencher o 1RM do exercício escolhido na aba “Config 1RM”.</div>
+    </div>
+
+    <hr style="opacity:.2;margin:18px 0">
+
+    <details>
+      <summary>Importar/Exportar template (avançado)</summary>
+      <div class="muted" style="margin:8px 0">Cole um JSON no formato do plano e clique em “Importar”.</div>
+      <textarea id="planJSON" placeholder='{"label":"Meu Plano","desc":"...","days":{"d1":[...],"d2":[...]}}'></textarea>
+      <div class="row" style="margin-top:8px">
+        <button class="btn ghost" id="importPlan">Importar</button>
+        <button class="btn ghost" id="exportPlan">Exportar plano atual</button>
+      </div>
+    </details>
+  </section>
+
   <!-- TREINO -->
   <section id="page-treino">
     <section class="card">
       <div class="row">
         <h3 style="margin:0">Semana 1</h3>
+        <span class="pill">Plano: <b id="planNameTreino">—</b></span>
         <div class="right row">
           <span class="pill">Sessão: <span id="sess-timer" class="timer">00:00</span></span>
           <button id="sess-start" class="btn ghost">Iniciar</button>
@@ -84,11 +163,11 @@
           <button id="sess-reset" class="btn ghost">Zerar</button>
         </div>
       </div>
-      <div class="muted">Ao marcar “Feito” o descanso (90 s) inicia automaticamente. Use os RPEs e tempos para ajuste futuro.</div>
+      <div class="muted">Ao marcar “Feito” o descanso (90 s) inicia automaticamente (beep no início e no fim).</div>
 
-      <!-- Dia 1 -->
+      <!-- D1 -->
       <details open>
-        <summary>DIA 1 — Snatch + Front Squat</summary>
+        <summary>DIA 1</summary>
         <div class="row">
           <label>Data</label><input type="date" id="date-d1">
           <div class="right row">
@@ -98,7 +177,7 @@
             <span class="pill">Rest: <span id="rest-d1" class="timer">00:00</span></span>
           </div>
         </div>
-        <div style="overflow-x:auto;">
+        <div style="overflow-x:auto">
           <table>
             <thead><tr><th>#</th><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Prescrito (kg)</th><th>Real (kg)</th><th>RPE</th><th>Feito</th><th>Timer</th><th>Vídeo</th></tr></thead>
             <tbody id="d1"></tbody>
@@ -110,9 +189,9 @@
         </div>
       </details>
 
-      <!-- Dia 2 -->
+      <!-- D2 -->
       <details>
-        <summary>DIA 2 — Clean & Jerk + Back Squat</summary>
+        <summary>DIA 2</summary>
         <div class="row">
           <label>Data</label><input type="date" id="date-d2">
           <div class="right row">
@@ -122,7 +201,7 @@
             <span class="pill">Rest: <span id="rest-d2" class="timer">00:00</span></span>
           </div>
         </div>
-        <div style="overflow-x:auto;">
+        <div style="overflow-x:auto">
           <table>
             <thead><tr><th>#</th><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Prescrito (kg)</th><th>Real (kg)</th><th>RPE</th><th>Feito</th><th>Timer</th><th>Vídeo</th></tr></thead>
             <tbody id="d2"></tbody>
@@ -134,9 +213,9 @@
         </div>
       </details>
 
-      <!-- Dia 3 -->
+      <!-- D3 -->
       <details>
-        <summary>DIA 3 — Estabilidade Overhead + Puxadas</summary>
+        <summary>DIA 3</summary>
         <div class="row">
           <label>Data</label><input type="date" id="date-d3">
           <div class="right row">
@@ -146,7 +225,7 @@
             <span class="pill">Rest: <span id="rest-d3" class="timer">00:00</span></span>
           </div>
         </div>
-        <div style="overflow-x:auto;">
+        <div style="overflow-x:auto">
           <table>
             <thead><tr><th>#</th><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Prescrito (kg)</th><th>Real (kg)</th><th>RPE</th><th>Feito</th><th>Timer</th><th>Vídeo</th></tr></thead>
             <tbody id="d3"></tbody>
@@ -158,9 +237,9 @@
         </div>
       </details>
 
-      <!-- Dia 4 -->
+      <!-- D4 -->
       <details>
-        <summary>DIA 4 — Complexos técnicos + Front Squat</summary>
+        <summary>DIA 4</summary>
         <div class="row">
           <label>Data</label><input type="date" id="date-d4">
           <div class="right row">
@@ -170,7 +249,7 @@
             <span class="pill">Rest: <span id="rest-d4" class="timer">00:00</span></span>
           </div>
         </div>
-        <div style="overflow-x:auto;">
+        <div style="overflow-x:auto">
           <table>
             <thead><tr><th>#</th><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Prescrito (kg)</th><th>Real (kg)</th><th>RPE</th><th>Feito</th><th>Timer</th><th>Vídeo</th></tr></thead>
             <tbody id="d4"></tbody>
@@ -203,49 +282,40 @@
 <footer>© LPO – Edu Bacci. Offline. Dados locais.</footer>
 
 <script>
-/*** ===== Helpers/TMs ===== ***/
+/* ===== Utils / Estado ===== */
 const $ = s => document.querySelector(s);
 const today = () => new Date().toISOString().slice(0,10);
 const round05 = v => Math.round(v*2)/2;
 const perc = (tm, p) => round05(tm * p);
-const saveKey = 'lpo_tm_v2';
-const sessKey = 'lpo_sessions_v2';
 
-/* Guarda tempos de descanso acumulados por dia */
-const restTotals = {};
+const saveKey  = 'lpo_tm_v2';
+const sessKey  = 'lpo_sessions_v2';
+const planKey  = 'lpo_plan_key_v1';
+const restTotals = {}; // acumula descanso por dia
 
-/*** Beep simples via Web Audio ***/
+/* ===== Beep (Web Audio) ===== */
 function playBeep(duration=0.25, frequency=880){
-  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const ctx = new (window.AudioContext||window.webkitAudioContext)();
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.type = 'square';
-  osc.frequency.value = frequency;
-  osc.start();
-  gain.gain.setValueAtTime(1, ctx.currentTime);
-  osc.stop(ctx.currentTime + duration);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.type='square'; osc.frequency.value=frequency;
+  osc.start(); gain.gain.setValueAtTime(1, ctx.currentTime);
+  osc.stop(ctx.currentTime+duration);
 }
 
-/*** Carrega 1RM salvo ***/
+/* ===== 1RM / TM ===== */
 function load1RM(){
-  try{
-    const s=JSON.parse(localStorage.getItem(saveKey)||'{}');
+  try{const s=JSON.parse(localStorage.getItem(saveKey)||'{}');
     ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>{
-      const el=document.getElementById(id);
-      if(s[id]!=null && el) el.value=s[id];
+      const el=document.getElementById(id); if(s[id]!=null && el) el.value=s[id];
     });
   }catch(e){}
 }
-
-/*** Calcula TMs (90% 1RM) ***/
 function getTM(){
   const g=id=>Number($('#'+id)?.value||0)*0.9;
   return {sn:g('sn1'), cj:g('cj1'), fs:g('fs1'), bs:g('bs1'), dl:g('dl1'), bp:g('bp1'), oh:g('oh1')};
 }
-
-/*** Mostra etiquetas de TM ***/
 function showTMs(){
   const {sn,cj,fs,bs,dl,bp,oh}=getTM();
   if($('#tmSn')){
@@ -258,172 +328,278 @@ function showTMs(){
     $('#tmOh').textContent='TM OHP: '+round05(oh)+' kg';
   }
 }
-
-/*** Persiste 1RM ***/
 $('#save1rm')?.addEventListener('click',()=>{
-  const data={};
-  ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>data[id]=Number($('#'+id).value||0));
-  localStorage.setItem(saveKey,JSON.stringify(data));
-  showTMs();
-  renderAll();
+  const data={}; ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>data[id]=Number($('#'+id).value||0));
+  localStorage.setItem(saveKey,JSON.stringify(data)); showTMs(); renderAll();
 });
 
-/*** Programa da Semana 1 (cargas e links) ***/
-const W1 = {
- d1: [
-  {blk:'Mobilidade', ex:'Panturrilha, t-spine, Couch', sets:'2–3 min', lift:null, perc:null, link:'https://www.youtube.com/watch?v=ulgAOykAgV4'},
-  {blk:'Aquecimento', ex:'Burgener Warm-Up (Snatch)', sets:'1–2 voltas', lift:null, perc:null, link:'https://www.youtube.com/watch?v=4wLDeeHds58'},
-  {blk:'Técnico', ex:'Tall Snatch', sets:'5x3', lift:'sn', perc:[0.40,0.55], link:'https://www.catalystathletics.com/exercise/217/Tall-Snatch/'},
-  {blk:'LPO força', ex:'Overhead Squat', sets:'4x3', lift:'sn', perc:[0.55,0.55], link:'https://www.catalystathletics.com/exercise/79/Overhead-Squat/'},
-  {blk:'Força', ex:'Front Squat', sets:'4x5', lift:'fs', perc:[0.70,0.70], link:'https://www.catalystathletics.com/exercise/78/Front-Squat/'},
-  {blk:'Pull Snatch', ex:'Snatch High Pull', sets:'4x3', lift:'sn', perc:[0.75,0.75], link:'https://www.catalystathletics.com/exercise/99/Snatch-High-Pull/'},
-  {blk:'Acessório', ex:'1¼ Back Squat', sets:'3x5', lift:'bs', perc:[0.55,0.60], link:'https://www.catalystathletics.com/exercise/168/1-14-Back-Squat/'},
-  {blk:'Core', ex:'Prancha + Hollow', sets:'3x30–45s', lift:null, perc:null, link:''}
- ],
- d2: [
-  {blk:'Mobilidade', ex:'Dorsiflexão (knee-to-wall), t-spine', sets:'2–3 min', lift:null, perc:null, link:'https://www.physio-pedia.com/Knee_to_Wall_Test'},
-  {blk:'Aquecimento', ex:'Jerk dip/drive', sets:'2–3x', lift:null, perc:null, link:''},
-  {blk:'Técnico', ex:'Clean Pull', sets:'4x3', lift:'cj', perc:[0.85,0.85], link:'https://www.catalystathletics.com/exercise/98/Clean-Pull/'},
-  {blk:'LPO', ex:'Clean & Jerk (1+2)', sets:'6x', lift:'cj', perc:[0.60,0.60], link:'https://www.catalystathletics.com/exercise/86/Clean-Jerk/'},
-  {blk:'Força', ex:'Back Squat', sets:'5x3', lift:'bs', perc:[0.70,0.70], link:'https://www.catalystathletics.com/exercise/77/Back-Squat/'},
-  {blk:'Overhead', ex:'Push Press', sets:'4x4', lift:'cj', perc:[0.70,0.70], link:'https://www.catalystathletics.com/exercise/87/Push-Press/'},
-  {blk:'Acessório', ex:'Romanian Deadlift', sets:'3x8', lift:'dl', perc:[0.40,0.40], link:''},
-  {blk:'Core', ex:'Farmer Carry pesado', sets:'4x20–30 m', lift:null, perc:null, link:''}
- ],
- d3: [
-  {blk:'Mobilidade', ex:'PVC dislocates + Couch', sets:'2–3 min', lift:null, perc:null, link:'https://www.youtube.com/watch?v=j32NGzthtN4'},
-  {blk:'Aquecimento', ex:'Saltos + agacho com pausa', sets:'—', lift:null, perc:null, link:''},
-  {blk:'Overhead', ex:'Press Behind-the-Neck', sets:'4x5', lift:'cj', perc:[0.60,0.60], link:'https://www.catalystathletics.com/exercise/204/Press-Behind-The-Neck/'},
-  {blk:'Estab.', ex:'Snatch Balance', sets:'5x2', lift:'sn', perc:[0.60,0.60], link:'https://www.catalystathletics.com/exercise/90/Snatch-Balance/'},
-  {blk:'Pull Clean', ex:'Clean High Pull', sets:'4x3', lift:'cj', perc:[0.85,0.85], link:'https://www.catalystathletics.com/exercise/100/Clean-High-Pull/'},
-  {blk:'Acessório', ex:'Back Squat Jump', sets:'4x5', lift:null, perc:null, link:'https://www.catalystathletics.com/exercise/353/Back-Squat-Jump/'},
-  {blk:'Core', ex:'Pallof + Side plank', sets:'3x10 / 3x30–45s', lift:null, perc:null, link:''}
- ],
- d4: [
-  {blk:'Mobilidade', ex:'Panturrilha + glúteo + t-spine', sets:'2–3 min', lift:null, perc:null, link:''},
-  {blk:'Aquecimento', ex:'Tall Muscle Snatch', sets:'4x3', lift:'sn', perc:[0.35,0.35], link:'https://www.catalystathletics.com/exercise/543/Tall-Muscle-Snatch/'},
-  {blk:'Complexo', ex:'Hang Snatch High Pull + OHS', sets:'6x (2+1)', lift:'sn', perc:[0.55,0.55], link:'https://www.catalystathletics.com/exercise/403/Block-Snatch-High-Pull/'},
-  {blk:'Força', ex:'Front Squat', sets:'5x3', lift:'fs', perc:[0.725,0.725], link:'https://www.catalystathletics.com/exercise/78/Front-Squat/'},
-  {blk:'Técnica Jerk', ex:'Push Press BTN', sets:'4x3', lift:'cj', perc:[0.65,0.65], link:'https://www.catalystathletics.com/exercise/88/Push-Press-Behind-The-Neck/'},
-  {blk:'Mobilidade', ex:'Clean-Grip OHS (leve)', sets:'3x5', lift:'sn', perc:[0.35,0.35], link:'https://www.catalystathletics.com/exercise/420/Clean-Grip-Overhead-Squat/'},
-  {blk:'Core', ex:'Overhead carry (barra/PVC)', sets:'3–4 x 20–30 m', lift:null, perc:null, link:''}
- ]
+/* ===== Templates (Planos) ===== */
+const PLANS = {
+  balance: { label:'Balanceado (Técnica/Força)', desc:'Plano de base técnica com força moderada. Ideal para recomeço.',
+    days:{ /* baseado no que já usávamos (Semana 1) */
+      d1:[
+        {blk:'Mobilidade',ex:'Panturrilha, t-spine, Couch',sets:'2–3 min',lift:null,perc:null,link:'https://www.youtube.com/watch?v=ulgAOykAgV4'},
+        {blk:'Aquecimento',ex:'Burgener Warm-Up (Snatch)',sets:'1–2 voltas',lift:null,perc:null,link:'https://www.youtube.com/watch?v=4wLDeeHds58'},
+        {blk:'Técnico',ex:'Tall Snatch',sets:'5x3',lift:'sn',perc:[0.40,0.55],link:'https://www.catalystathletics.com/exercise/217/Tall-Snatch/'},
+        {blk:'LPO força',ex:'Overhead Squat',sets:'4x3',lift:'sn',perc:[0.55,0.55],link:'https://www.catalystathletics.com/exercise/79/Overhead-Squat/'},
+        {blk:'Força',ex:'Front Squat',sets:'4x5',lift:'fs',perc:[0.70,0.70],link:'https://www.catalystathletics.com/exercise/78/Front-Squat/'},
+        {blk:'Pull Snatch',ex:'Snatch High Pull',sets:'4x3',lift:'sn',perc:[0.75,0.75],link:'https://www.catalystathletics.com/exercise/99/Snatch-High-Pull/'},
+        {blk:'Acessório',ex:'1¼ Back Squat',sets:'3x5',lift:'bs',perc:[0.55,0.60],link:'https://www.catalystathletics.com/exercise/168/1-14-Back-Squat/'},
+        {blk:'Core',ex:'Prancha + Hollow',sets:'3x30–45s',lift:null,perc:null,link:''}
+      ],
+      d2:[
+        {blk:'Mobilidade',ex:'Dorsiflexão + t-spine',sets:'2–3 min',lift:null,perc:null,link:'https://www.physio-pedia.com/Knee_to_Wall_Test'},
+        {blk:'Aquecimento',ex:'Jerk dip/drive',sets:'2–3x',lift:null,perc:null,link:''},
+        {blk:'Técnico',ex:'Clean Pull',sets:'4x3',lift:'cj',perc:[0.85,0.85],link:'https://www.catalystathletics.com/exercise/98/Clean-Pull/'},
+        {blk:'LPO',ex:'Clean & Jerk (1+2)',sets:'6x',lift:'cj',perc:[0.60,0.60],link:'https://www.catalystathletics.com/exercise/86/Clean-Jerk/'},
+        {blk:'Força',ex:'Back Squat',sets:'5x3',lift:'bs',perc:[0.70,0.70],link:'https://www.catalystathletics.com/exercise/77/Back-Squat/'},
+        {blk:'Overhead',ex:'Push Press',sets:'4x4',lift:'cj',perc:[0.70,0.70],link:'https://www.catalystathletics.com/exercise/87/Push-Press/'},
+        {blk:'Acessório',ex:'Romanian Deadlift',sets:'3x8',lift:'dl',perc:[0.40,0.40],link:''},
+        {blk:'Core',ex:'Farmer Carry pesado',sets:'4x20–30 m',lift:null,perc:null,link:''}
+      ],
+      d3:[
+        {blk:'Mobilidade',ex:'PVC dislocates + Couch',sets:'2–3 min',lift:null,perc:null,link:'https://www.youtube.com/watch?v=j32NGzthtN4'},
+        {blk:'Aquecimento',ex:'Saltos + agacho com pausa',sets:'—',lift:null,perc:null,link:''},
+        {blk:'Overhead',ex:'Press Behind-the-Neck',sets:'4x5',lift:'cj',perc:[0.60,0.60],link:'https://www.catalystathletics.com/exercise/204/Press-Behind-The-Neck/'},
+        {blk:'Estab.',ex:'Snatch Balance',sets:'5x2',lift:'sn',perc:[0.60,0.60],link:'https://www.catalystathletics.com/exercise/90/Snatch-Balance/'},
+        {blk:'Pull Clean',ex:'Clean High Pull',sets:'4x3',lift:'cj',perc:[0.85,0.85],link:'https://www.catalystathletics.com/exercise/100/Clean-High-Pull/'},
+        {blk:'Acessório',ex:'Back Squat Jump',sets:'4x5',lift:null,perc:null,link:'https://www.catalystathletics.com/exercise/353/Back-Squat-Jump/'},
+        {blk:'Core',ex:'Pallof + Side plank',sets:'3x10 / 3x30–45s',lift:null,perc:null,link:''}
+      ],
+      d4:[
+        {blk:'Mobilidade',ex:'Panturrilha + glúteo + t-spine',sets:'2–3 min',lift:null,perc:null,link:''},
+        {blk:'Aquecimento',ex:'Tall Muscle Snatch',sets:'4x3',lift:'sn',perc:[0.35,0.35],link:'https://www.catalystathletics.com/exercise/543/Tall-Muscle-Snatch/'},
+        {blk:'Complexo',ex:'Hang Snatch High Pull + OHS',sets:'6x (2+1)',lift:'sn',perc:[0.55,0.55],link:'https://www.catalystathletics.com/exercise/403/Block-Snatch-High-Pull/'},
+        {blk:'Força',ex:'Front Squat',sets:'5x3',lift:'fs',perc:[0.725,0.725],link:'https://www.catalystathletics.com/exercise/78/Front-Squat/'},
+        {blk:'Técnica Jerk',ex:'Push Press BTN',sets:'4x3',lift:'cj',perc:[0.65,0.65],link:'https://www.catalystathletics.com/exercise/88/Push-Press-Behind-The-Neck/'},
+        {blk:'Mobilidade',ex:'Clean-Grip OHS (leve)',sets:'3x5',lift:'sn',perc:[0.35,0.35],link:'https://www.catalystathletics.com/exercise/420/Clean-Grip-Overhead-Squat/'},
+        {blk:'Core',ex:'Overhead carry (barra/PVC)',sets:'3–4 x 20–30 m',lift:null,perc:null,link:''}
+      ]
+    }
+  },
+  strength: { label:'Força Máxima', desc:'Mais volume em agachamentos e puxadas; LPO moderado.',
+    days:{
+      d1:[
+        {blk:'Aquecimento',ex:'Burgener (Snatch)',sets:'1–2 voltas',lift:null,perc:null,link:'https://www.youtube.com/watch?v=4wLDeeHds58'},
+        {blk:'Força',ex:'Back Squat',sets:'5x5',lift:'bs',perc:[0.75,0.80],link:'https://www.catalystathletics.com/exercise/77/Back-Squat/'},
+        {blk:'Técnico',ex:'Power Snatch',sets:'5x2',lift:'sn',perc:[0.65,0.70],link:''},
+        {blk:'Pull',ex:'Snatch Pull',sets:'4x3',lift:'sn',perc:[0.90,0.95],link:''},
+        {blk:'Core',ex:'Hollow + Superman',sets:'3x30–45s',lift:null,perc:null,link:''}
+      ],
+      d2:[
+        {blk:'Aquecimento',ex:'Jerk dip/drive',sets:'2–3x',lift:null,perc:null,link:''},
+        {blk:'Força',ex:'Front Squat',sets:'5x3',lift:'fs',perc:[0.80,0.85],link:'https://www.catalystathletics.com/exercise/78/Front-Squat/'},
+        {blk:'LPO',ex:'Clean & Jerk',sets:'6x1',lift:'cj',perc:[0.75,0.80],link:'https://www.catalystathletics.com/exercise/86/Clean-Jerk/'},
+        {blk:'Pull',ex:'Clean Pull',sets:'4x3',lift:'cj',perc:[0.95,0.95],link:'https://www.catalystathletics.com/exercise/98/Clean-Pull/'},
+        {blk:'Acessório',ex:'Romanian Deadlift',sets:'3x6',lift:'dl',perc:[0.55,0.60],link:''}
+      ],
+      d3:[
+        {blk:'Overhead',ex:'Push Press BTN',sets:'5x4',lift:'cj',perc:[0.70,0.75],link:'https://www.catalystathletics.com/exercise/88/Push-Press-Behind-The-Neck/'},
+        {blk:'Estab.',ex:'Snatch Balance',sets:'5x2',lift:'sn',perc:[0.65,0.70],link:'https://www.catalystathletics.com/exercise/90/Snatch-Balance/'},
+        {blk:'Pull',ex:'Snatch High Pull',sets:'4x3',lift:'sn',perc:[0.95,0.95],link:'https://www.catalystathletics.com/exercise/99/Snatch-High-Pull/'},
+        {blk:'Core',ex:'Pallof + Side plank',sets:'3x12 / 3x30–45s',lift:null,perc:null,link:''}
+      ],
+      d4:[
+        {blk:'Força',ex:'Back Squat',sets:'5x5',lift:'bs',perc:[0.80,0.80],link:'https://www.catalystathletics.com/exercise/77/Back-Squat/'},
+        {blk:'Técnico',ex:'Power Clean + Jerk',sets:'5x(2+1)',lift:'cj',perc:[0.70,0.75],link:''},
+        {blk:'Acessório',ex:'Clean-Grip RDL',sets:'3x6',lift:'dl',perc:[0.60,0.60],link:''},
+        {blk:'Core',ex:'Carry pesado',sets:'4x20–30 m',lift:null,perc:null,link:''}
+      ]
+    }
+  },
+  hypertrophy: { label:'Volume/Hipertrofia', desc:'Mais repetições e faixas 60–75% para qualidade técnica.',
+    days:{
+      d1:[
+        {blk:'Técnico',ex:'Tall Snatch',sets:'6x3',lift:'sn',perc:[0.45,0.55],link:''},
+        {blk:'LPO',ex:'Snatch',sets:'8x2',lift:'sn',perc:[0.65,0.70],link:''},
+        {blk:'Força',ex:'Front Squat',sets:'4x6',lift:'fs',perc:[0.70,0.70],link:''},
+        {blk:'Pull',ex:'Snatch Pull',sets:'4x3',lift:'sn',perc:[0.90,0.90],link:''}
+      ],
+      d2:[
+        {blk:'Técnico',ex:'Jerk dip/drive',sets:'4x3',lift:null,perc:null,link:''},
+        {blk:'LPO',ex:'Clean & Jerk',sets:'6x2',lift:'cj',perc:[0.70,0.75],link:''},
+        {blk:'Força',ex:'Back Squat',sets:'4x6',lift:'bs',perc:[0.70,0.75],link:''},
+        {blk:'Overhead',ex:'Push Press',sets:'4x6',lift:'cj',perc:[0.65,0.70],link:''}
+      ],
+      d3:[
+        {blk:'Estab.',ex:'Snatch Balance',sets:'5x3',lift:'sn',perc:[0.60,0.65],link:''},
+        {blk:'Pull',ex:'Clean High Pull',sets:'4x3',lift:'cj',perc:[0.90,0.90],link:''},
+        {blk:'Acessório',ex:'Back Squat Jump',sets:'4x5',lift:null,perc:null,link:''}
+      ],
+      d4:[
+        {blk:'Complexo',ex:'Power Snatch + OHS',sets:'6x(2+2)',lift:'sn',perc:[0.60,0.65],link:''},
+        {blk:'Força',ex:'Front Squat',sets:'5x5',lift:'fs',perc:[0.70,0.75],link:''},
+        {blk:'Overhead',ex:'BTN Press',sets:'4x6',lift:'cj',perc:[0.60,0.65],link:''}
+      ]
+    }
+  },
+  peaking: { label:'Pico/Competição', desc:'Baixa volume, intensidade alta para maximizar 1RM.',
+    days:{
+      d1:[
+        {blk:'LPO',ex:'Snatch simples',sets:'6x1',lift:'sn',perc:[0.80,0.85],link:''},
+        {blk:'Força',ex:'Front Squat',sets:'4x3',lift:'fs',perc:[0.80,0.85],link:''},
+        {blk:'Pull',ex:'Snatch Pull',sets:'3x2',lift:'sn',perc:[1.00,1.05],link:''}
+      ],
+      d2:[
+        {blk:'LPO',ex:'Clean & Jerk simples',sets:'5x1',lift:'cj',perc:[0.80,0.85],link:''},
+        {blk:'Força',ex:'Back Squat',sets:'3x3',lift:'bs',perc:[0.80,0.85],link:''}
+      ],
+      d3:[
+        {blk:'Overhead',ex:'BTN Press',sets:'4x3',lift:'cj',perc:[0.65,0.70],link:''},
+        {blk:'Técnico',ex:'Snatch Balance leve',sets:'3x2',lift:'sn',perc:[0.55,0.60],link:''}
+      ],
+      d4:[
+        {blk:'LPO',ex:'Power Clean + Jerk',sets:'4x(1+1)',lift:'cj',perc:[0.75,0.80],link:''},
+        {blk:'Mobilidade',ex:'Mobilidade geral',sets:'10–15 min',lift:null,perc:null,link:''}
+      ]
+    }
+  }
 };
 
-/*** ===== Render das linhas ===== ***/
+function getPlanKey(){ return localStorage.getItem(planKey) || 'balance'; }
+function setPlanKey(k){ localStorage.setItem(planKey,k); updatePlanLabels(); renderAll(); }
+function getPlan(){ return PLANS[getPlanKey()] || PLANS.balance; }
+
+function fillPlanSelect(){
+  const sel = $('#planSelect'); sel.innerHTML='';
+  Object.keys(PLANS).forEach(k=>{
+    const opt=document.createElement('option');
+    opt.value=k; opt.textContent=PLANS[k].label; sel.appendChild(opt);
+  });
+  sel.value = getPlanKey();
+  $('#planDesc').textContent = PLANS[sel.value].desc;
+}
+function updatePlanLabels(){
+  const k=getPlanKey();
+  $('#planNameNow').textContent = PLANS[k].label;
+  $('#planNameTreino').textContent = PLANS[k].label;
+}
+
+/* eventos templates */
+document.addEventListener('change',e=>{
+  if(e.target.id==='planSelect'){
+    const k=e.target.value; $('#planDesc').textContent = PLANS[k].desc;
+  }
+});
+$('#applyPlan')?.addEventListener('click',()=>{ setPlanKey($('#planSelect').value); alert('Template aplicado: '+PLANS[getPlanKey()].label); });
+$('#resetPlan')?.addEventListener('click',()=>{ setPlanKey('balance'); $('#planSelect').value='balance'; $('#planDesc').textContent=PLANS.balance.desc; });
+$('#exportPlan')?.addEventListener('click',()=>{
+  const j = JSON.stringify(getPlan(), null, 2);
+  $('#planJSON').value = j;
+  alert('Plano atual exportado para a caixa abaixo. Copie e salve se quiser.');
+});
+$('#importPlan')?.addEventListener('click',()=>{
+  try{
+    const obj = JSON.parse($('#planJSON').value||'{}');
+    if(!obj.label || !obj.days) throw new Error('JSON inválido.');
+    const key = 'custom_'+Date.now();
+    PLANS[key]=obj;
+    fillPlanSelect(); $('#planSelect').value=key; $('#planDesc').textContent=obj.desc||'';
+    setPlanKey(key); alert('Template importado e aplicado: '+obj.label);
+  }catch(err){ alert('Erro ao importar: '+err.message); }
+});
+
+/* Calculadora 1RM */
+function calc1RM(weight, reps, formula='brzycki'){
+  reps = Math.min(Math.max(1, Number(reps)||1), 10);
+  weight = Number(weight)||0;
+  if(formula==='epley'){ return weight * (1 + reps/30); }
+  // brzycki
+  return weight * (36 / (37 - reps));
+}
+$('#calcDo')?.addEventListener('click',()=>{
+  const w=Number($('#calcWeight').value||0), r=Number($('#calcReps').value||1), f=$('#calcFormula').value;
+  $('#calcOut').value = round05(calc1RM(w,r,f));
+});
+$('#calcApply')?.addEventListener('click',()=>{
+  const lift=$('#calcLift').value, val=Number($('#calcOut').value||0);
+  const map={sn:'sn1',cj:'cj1',fs:'fs1',bs:'bs1',dl:'dl1',bp:'bp1',oh:'oh1'};
+  const id=map[lift]; if(!id){alert('Selecione um exercício.');return;}
+  const el=$('#'+id); if(!el){alert('Abra a aba “Config 1RM” para ver os campos.');}
+  el.value = val; $('#save1rm').click();
+});
+
+/* ===== Render do Treino ===== */
 function kgText(tm,p){ if(!p) return '—'; const [a,b]=p; const t1=perc(tm,a), t2=perc(tm,b); return (a===b)? `${t1}` : `${t1} – ${t2}`; }
 function kgDefault(tm,p){ if(!p) return 0; return perc(tm,p[0]); }
 
-/*** Cria linha HTML de um exercício ***/
-function renderDay(dayId, data){
-  const tm = getTM();
-  let html = '';
-  data.forEach((it,idx)=>{
+function addCheckboxListeners(dayId, defaultRest=90){
+  document.querySelectorAll('#'+dayId+' input[type="checkbox"]').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      const tr = cb.closest('tr');
+      if(cb.checked){ tr.classList.add('done'); startRest(dayId, defaultRest); } else { tr.classList.remove('done'); }
+    });
+  });
+}
+
+function renderDay(dayId, arr){
+  const tm=getTM(); let html='';
+  arr.forEach((it,idx)=>{
     const base = it.lift? tm[it.lift]||0 : 0;
     const presc = kgText(base, it.perc);
     const defKg = kgDefault(base, it.perc);
     const link = it.link? `<a target=_blank href="${it.link}">ver</a>` : '—';
     html += `<tr data-lift="${it.lift||''}" data-perc="${it.perc?it.perc.join(','):''}">
-      <td>${idx+1}</td>
-      <td>${it.blk}</td>
-      <td>${it.ex}</td>
-      <td>${it.sets}</td>
-      <td>${presc}</td>
+      <td>${idx+1}</td><td>${it.blk}</td><td>${it.ex}</td><td>${it.sets}</td><td>${presc}</td>
       <td><input type="number" step="0.5" value="${defKg}"></td>
-      <td>
-        <select><option value="">—</option>${[6,7,8,8.5,9,9.5,10].map(v=>`<option>${v}</option>`).join('')}</select>
-      </td>
+      <td><select><option value="">—</option>${[6,7,8,8.5,9,9.5,10].map(v=>`<option>${v}</option>`).join('')}</select></td>
       <td style="text-align:center"><input type="checkbox"></td>
-      <td>
-        <span class="timer" id="${dayId}-t${idx}">00:00</span>
-        <button class="btn ghost start" data-for="${dayId}-t${idx}">▶</button>
-        <button class="btn ghost stop" data-for="${dayId}-t${idx}">⏸</button>
-        <button class="btn ghost reset" data-for="${dayId}-t${idx}">⟲</button>
+      <td><span class="timer" id="${dayId}-t${idx}">00:00</span>
+          <button class="btn ghost start" data-for="${dayId}-t${idx}">▶</button>
+          <button class="btn ghost stop" data-for="${dayId}-t${idx}">⏸</button>
+          <button class="btn ghost reset" data-for="${dayId}-t${idx}">⟲</button>
       </td>
       <td>${link}</td>
     </tr>`;
   });
-  $('#'+dayId).innerHTML = html;
-  // adicionar listeners p/ checkboxes: marcar linha + iniciar descanso automático
+  $('#'+dayId).innerHTML=html;
   addCheckboxListeners(dayId);
 }
 
-/*** Gera todas as tabelas ***/
 function renderAll(){
-  ['d1','d2','d3','d4'].forEach(d=>{
-    const elDate = $('#date-'+d);
-    if(elDate && !elDate.value) elDate.value = today();
-  });
-  renderDay('d1', W1.d1);
-  renderDay('d2', W1.d2);
-  renderDay('d3', W1.d3);
-  renderDay('d4', W1.d4);
+  const PLAN = getPlan();
+  updatePlanLabels();
+  ['d1','d2','d3','d4'].forEach(d=>{ const el=$('#date-'+d); if(el && !el.value) el.value=today(); });
+  renderDay('d1', PLAN.days.d1||[]);
+  renderDay('d2', PLAN.days.d2||[]);
+  renderDay('d3', PLAN.days.d3||[]);
+  renderDay('d4', PLAN.days.d4||[]);
 }
 
-/*** Checkbox → marca linha e inicia descanso ***/
-function addCheckboxListeners(dayId, defaultRest=90){
-  document.querySelectorAll('#'+dayId+' input[type="checkbox"]').forEach(cb=>{
-    cb.addEventListener('change', ()=>{
-      const tr = cb.closest('tr');
-      if(cb.checked){
-        tr.classList.add('done');
-        startRest(dayId, defaultRest);
-      } else {
-        tr.classList.remove('done');
-      }
-    });
-  });
-}
-
-/*** Timer simples (stopwatch) ***/
-function mkStopwatch(displayEl){
+/* ===== Timers ===== */
+function mkStopwatch(el){
   let t=0, iv=null;
-  const fmt = s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(Math.floor(s%60)).padStart(2,'0');
-  const paint = ()=> displayEl.textContent=fmt(t);
-  return {
-    start(){ if(iv) return; iv=setInterval(()=>{t++; paint();},1000); },
-    stop(){ clearInterval(iv); iv=null; },
-    reset(){ t=0; paint(); },
-    get(){ return t; }
-  };
+  const fmt=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(Math.floor(s%60)).padStart(2,'0');
+  const paint=()=>el.textContent=fmt(t);
+  return { start(){ if(iv) return; iv=setInterval(()=>{t++;paint();},1000); },
+           stop(){ clearInterval(iv); iv=null; },
+           reset(){ t=0; paint(); },
+           get(){ return t; } };
 }
 const rowTimers = new Map();
-document.addEventListener('click',(e)=>{
-  const b=e.target.closest('button');
-  if(!b) return;
+document.addEventListener('click', (e)=>{
+  const b=e.target.closest('button'); if(!b) return;
   if(b.classList.contains('start')||b.classList.contains('stop')||b.classList.contains('reset')){
-    const id=b.getAttribute('data-for');
-    const el=document.getElementById(id);
-    if(!rowTimers.has(id)) rowTimers.set(id,mkStopwatch(el));
+    const id=b.getAttribute('data-for'); const el=document.getElementById(id);
+    if(!rowTimers.has(id)) rowTimers.set(id, mkStopwatch(el));
     const sw=rowTimers.get(id);
     if(b.classList.contains('start')) sw.start();
-    if(b.classList.contains('stop')) sw.stop();
+    if(b.classList.contains('stop'))  sw.stop();
     if(b.classList.contains('reset')) sw.reset();
   }
 });
-
-/*** Timer global de sessão ***/
 const sessSw = mkStopwatch($('#sess-timer'));
 $('#sess-start').addEventListener('click',()=>sessSw.start());
 $('#sess-stop').addEventListener('click',()=>sessSw.stop());
 $('#sess-reset').addEventListener('click',()=>sessSw.reset());
 
-/*** Descanso por dia ***/
 function formatTime(t){ return String(Math.floor(t/60)).padStart(2,'0')+':'+String(Math.floor(t%60)).padStart(2,'0'); }
 function startRest(day, secs){
   restTotals[day]=(restTotals[day]||0)+secs;
-  const el = $('#rest-'+day);
-  playBeep(); // beep ao iniciar descanso
-  let t=secs;
-  if(el) el.textContent=formatTime(t);
-  const iv=setInterval(()=>{
-    t--;
-    if(el) el.textContent=formatTime(Math.max(t,0));
-    if(t<=0){
-      clearInterval(iv);
-      playBeep(); // beep final do descanso
-    }
-  },1000);
+  const el=$('#rest-'+day); playBeep();
+  let t=secs; if(el) el.textContent=formatTime(t);
+  const iv=setInterval(()=>{ t--; if(el) el.textContent=formatTime(Math.max(t,0));
+    if(t<=0){ clearInterval(iv); playBeep(); } },1000);
 }
 document.querySelectorAll('.rest').forEach(btn=>{
   btn.addEventListener('click',()=>{
@@ -433,7 +609,7 @@ document.querySelectorAll('.rest').forEach(btn=>{
   });
 });
 
-/*** Salvar sessão do dia ***/
+/* ===== Salvar sessão / Histórico / CSV ===== */
 function saveDay(dayId){
   const date = $('#date-'+dayId)?.value || today();
   const tbody = $('#'+dayId);
@@ -444,130 +620,73 @@ function saveDay(dayId){
     const realKg=Number(tr.querySelector('input[type=number]').value||0);
     const rpe=tr.querySelector('select').value||'';
     const feito=tr.querySelector('input[type=checkbox]').checked;
-    // tempo ativo: pega cronômetro individual
     const timerEl = tr.querySelector('span.timer');
-    let secs=0;
-    if(timerEl){
-      const [m,s]=timerEl.textContent.split(':').map(Number);
-      secs=m*60+s;
-      activeSecs+=secs;
-    }
-    return {
-      idx:idx+1,
-      bloco:tds[1].innerText,
-      ex:tds[2].innerText,
-      series:tds[3].innerText,
-      prescrito:tds[4].innerText,
-      realKg,
-      rpe,
-      feito,
-      activeSecs:secs
-    };
+    let secs=0; if(timerEl){ const [m,s]=timerEl.textContent.split(':').map(Number); secs=m*60+s; activeSecs+=secs; }
+    return { idx:idx+1, bloco:tds[1].innerText, ex:tds[2].innerText, series:tds[3].innerText,
+             prescrito:tds[4].innerText, realKg, rpe, feito, activeSecs:secs };
   });
   const rest = restTotals[dayId]||0;
-  const sess = {dia:dayId, data:date, tm:getTM(), itens, activeSecs, restSecs:rest, totalSecs:activeSecs+rest, ts:Date.now()};
-  const arr=JSON.parse(localStorage.getItem(sessKey)||'[]');
-  arr.unshift(sess);
+  const sess = { dia:dayId, data:date, tm:getTM(), itens, activeSecs, restSecs:rest, totalSecs:activeSecs+rest, plan:getPlan().label, ts:Date.now() };
+  const arr=JSON.parse(localStorage.getItem(sessKey)||'[]'); arr.unshift(sess);
   localStorage.setItem(sessKey, JSON.stringify(arr));
-  alert('Sessão salva: '+dayId+' ('+date+')\\nTempo total: '+formatTime(activeSecs+rest)+' (ativo '+formatTime(activeSecs)+' | descanso '+formatTime(rest)+')');
+  alert('Sessão salva: '+dayId+' ('+date+')\nTempo total: '+formatTime(activeSecs+rest)+' (ativo '+formatTime(activeSecs)+' | descanso '+formatTime(rest)+')');
   renderHistory();
 }
-document.querySelectorAll('[data-save-day]').forEach(btn=>{
-  btn.addEventListener('click',()=> saveDay(btn.dataset.saveDay));
-});
-document.querySelectorAll('[data-markall]').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const tbody = $('#'+btn.dataset.markall);
-    tbody.querySelectorAll('input[type=checkbox]').forEach(cb=>{ cb.checked=true; cb.dispatchEvent(new Event('change')); });
-  });
-});
+document.querySelectorAll('[data-save-day]').forEach(b=>b.addEventListener('click',()=>saveDay(b.dataset.saveDay)));
+document.querySelectorAll('[data-markall]').forEach(b=>b.addEventListener('click',()=>{
+  const tbody=$('#'+b.dataset.markall);
+  tbody.querySelectorAll('input[type=checkbox]').forEach(cb=>{ cb.checked=true; cb.dispatchEvent(new Event('change')); });
+}));
 
-/*** Histórico e exportação CSV ***/
 function renderHistory(){
-  const box = $('#hist');
-  const arr=JSON.parse(localStorage.getItem(sessKey)||'[]');
+  const box=$('#hist'); const arr=JSON.parse(localStorage.getItem(sessKey)||'[]');
   if(!arr.length){ box.innerHTML='<div class="muted">Sem sessões salvas ainda.</div>'; return; }
   let html='';
   arr.forEach((s,i)=>{
-    const feitos=s.itens.filter(x=>x.feito).length;
-    const total=s.itens.length;
-    const rpeMed = (s.itens.filter(x=>x.rpe).reduce((a,b)=>a+Number(b.rpe),0) / Math.max(1,s.itens.filter(x=>x.rpe).length)).toFixed(1);
-    const totalMin = (s.totalSecs/60).toFixed(1);
-    const activeMin = (s.activeSecs/60).toFixed(1);
-    const restMin = (s.restSecs/60).toFixed(1);
+    const feitos=s.itens.filter(x=>x.feito).length, total=s.itens.length;
+    const rpeMed=(s.itens.filter(x=>x.rpe).reduce((a,b)=>a+Number(b.rpe),0)/Math.max(1,s.itens.filter(x=>x.rpe).length)).toFixed(1);
     const nomeDia={d1:'Dia 1',d2:'Dia 2',d3:'Dia 3',d4:'Dia 4'}[s.dia]||s.dia;
-    html += `<details ${i===0?'open':''}><summary>${s.data} • ${nomeDia} — ${feitos}/${total} feitos • RPE ${isNaN(rpeMed)?'—':rpeMed} • ${totalMin}min (ativo ${activeMin} / descanso ${restMin})</summary>
-      <div style="overflow-x:auto;">
+    html += `<details ${i===0?'open':''}><summary>${s.data} • ${nomeDia} • ${s.plan} — ${feitos}/${total} feitos • RPE ${isNaN(rpeMed)?'—':rpeMed} • ${(s.totalSecs/60).toFixed(1)}min (ativo ${(s.activeSecs/60).toFixed(1)} / descanso ${(s.restSecs/60).toFixed(1)})</summary>
+      <div style="overflow-x:auto">
       <table><thead><tr><th>#</th><th>Exercício</th><th>Séries</th><th>Prescrito</th><th>Real</th><th>RPE</th><th>Feito</th></tr></thead><tbody>`;
     s.itens.forEach(it=>{
       html+=`<tr><td>${it.idx}</td><td>${it.ex}</td><td>${it.series}</td><td>${it.prescrito}</td><td>${it.realKg||'—'}</td><td>${it.rpe||'—'}</td><td>${it.feito?'✔️':'—'}</td></tr>`;
     });
     html+='</tbody></table></div></details>';
   });
-  box.innerHTML = html;
+  box.innerHTML=html;
 }
 $('#exportCsv').addEventListener('click',()=>{
   const arr=JSON.parse(localStorage.getItem(sessKey)||'[]');
   if(!arr.length){ alert('Sem sessões para exportar.'); return; }
-  const lines = ['data,dia,idx,exercicio,series,prescrito,real_kg,rpe,feito,active_secs,rest_secs,total_secs'];
-  arr.forEach(s=>{
-    s.itens.forEach(it=>{
-      lines.push([
-        s.data,
-        s.dia,
-        it.idx,
-        `"${it.ex.replace(/"/g,'""')}"`,
-        `"${it.series}"`,
-        `"${it.prescrito}"`,
-        it.realKg,
-        it.rpe||'',
-        it.feito?1:0,
-        it.activeSecs,
-        s.restSecs,
-        s.totalSecs
-      ].join(','));
-    });
-  });
-  const blob=new Blob([lines.join('\\n')], {type:'text/csv'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='lpo-historico.csv';
-  a.click();
+  const lines=['data,dia,plano,idx,exercicio,series,prescrito,real_kg,rpe,feito,active_secs,rest_secs,total_secs'];
+  arr.forEach(s=>s.itens.forEach(it=>lines.push([s.data,s.dia,`"${s.plan}"`,it.idx,`"${it.ex.replace(/"/g,'""')}"`,`"${it.series}"`,`"${it.prescrito}"`,it.realKg,it.rpe||'',it.feito?1:0,it.activeSecs,s.restSecs,s.totalSecs].join(','))));
+  const blob=new Blob([lines.join('\n')],{type:'text/csv'}); const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download='lpo-historico.csv'; a.click();
 });
-$('#clearHist').addEventListener('click',()=>{
-  if(confirm('Apagar todo o histórico deste aparelho?')){
-    localStorage.removeItem(sessKey);
-    renderHistory();
-  }
-});
+$('#clearHist').addEventListener('click',()=>{ if(confirm('Apagar todo o histórico deste aparelho?')){ localStorage.removeItem(sessKey); renderHistory(); }});
 
-/*** Troca de abas ***/
+/* ===== Abas ===== */
 function showTab(name){
-  ['treino','hist','config'].forEach(t=>{
+  ['treino','hist','config','templates'].forEach(t=>{
     $('#page-'+t).classList.toggle('hide', t!==name);
     $('#tab-'+t).classList.toggle('active', t===name);
   });
   if(name==='hist') renderHistory();
+  if(name==='templates'){ fillPlanSelect(); updatePlanLabels(); }
   window.scrollTo({top:0,behavior:'smooth'});
 }
-$('#tab-treino').addEventListener('click',()=> showTab('treino'));
-$('#tab-historico').addEventListener('click',()=> showTab('hist'));
-$('#tab-config').addEventListener('click',()=> showTab('config'));
+$('#tab-treino').addEventListener('click',()=>showTab('treino'));
+$('#tab-historico').addEventListener('click',()=>showTab('hist'));
+$('#tab-config').addEventListener('click',()=>showTab('config'));
+$('#tab-templates').addEventListener('click',()=>showTab('templates'));
 
-/*** Inicialização ***/
-load1RM();
-showTMs();
-renderAll();
-['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>{
-  const el=document.getElementById(id);
-  if(el) el.addEventListener('input', ()=>{ showTMs(); renderAll(); });
-});
+/* ===== Init / PWA ===== */
+load1RM(); showTMs(); fillPlanSelect(); updatePlanLabels(); renderAll();
+['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>{ const el=$('#'+id); if(el) el.addEventListener('input',()=>{ showTMs(); renderAll(); }); });
 
-/*** Registrar Service Worker (PWA) ***/
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('./service-worker.js').catch(console.error);
-  });
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(console.error));
 }
 </script>
 </body>
