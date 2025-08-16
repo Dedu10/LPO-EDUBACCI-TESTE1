@@ -16,6 +16,8 @@
   .tabs{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
   .tab{border:1px solid #2a3b5e;background:#0f1420;color:#eaeef5;border-radius:999px;padding:8px 12px;cursor:pointer}
   .tab.active{background:#2663ff;border-color:#2663ff}
+  .quick{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .qbtn{background:#0f1420;border:1px dashed #2a3b5e;color:#eaeef5;border-radius:8px;padding:6px 10px;cursor:pointer}
   .card{background:#121826;border:1px solid #22304a;border-radius:12px;padding:14px;margin:14px 0}
   .grid{display:grid;gap:10px}
   .grid-2{grid-template-columns:1fr 1fr}
@@ -49,6 +51,10 @@
     <button id="tab-historico" class="tab">Histórico</button>
     <button id="tab-config" class="tab">Config 1RM</button>
     <button id="tab-templates" class="tab">Templates</button>
+  </div>
+  <div class="quick">
+    <button id="go-calc" class="qbtn">🧮 Calculadora 1RM</button>
+    <button id="go-templates" class="qbtn">📦 Escolher Template</button>
   </div>
   <div class="muted">Interativo • offline • salva no aparelho. Ajuste cargas, marque feito, RPE, timers e salve a sessão.</div>
 </header>
@@ -95,7 +101,7 @@
 
     <hr style="opacity:.2;margin:18px 0">
 
-    <h4 style="margin:0 0 8px">Calculadora de 1RM</h4>
+    <h4 id="calcStart" style="margin:0 0 8px">Calculadora de 1RM</h4>
     <div class="grid grid-3">
       <div>
         <label>Levantamento</label>
@@ -134,7 +140,7 @@
     <div class="row" style="margin-top:10px">
       <button class="btn" id="calcDo">Calcular</button>
       <button class="btn ghost" id="calcApply">Aplicar ao 1RM</button>
-      <div class="muted">Isso vai preencher o 1RM do exercício escolhido na aba “Config 1RM”.</div>
+      <div class="muted">Isso vai preencher o 1RM no “Config 1RM”, salvar e recalcular as cargas.</div>
     </div>
 
     <hr style="opacity:.2;margin:18px 0">
@@ -286,22 +292,28 @@
 const $ = s => document.querySelector(s);
 const today = () => new Date().toISOString().slice(0,10);
 const round05 = v => Math.round(v*2)/2;
-const perc = (tm, p) => round05(tm * p);
+const perc = (tm, p) => Math.max(0, round05(tm * p));
 
 const saveKey  = 'lpo_tm_v2';
 const sessKey  = 'lpo_sessions_v2';
 const planKey  = 'lpo_plan_key_v1';
 const restTotals = {}; // acumula descanso por dia
 
+/* ===== Atalhos topo ===== */
+$('#go-calc').addEventListener('click',()=>{ showTab('templates'); document.getElementById('calcStart').scrollIntoView({behavior:'smooth'}); });
+$('#go-templates').addEventListener('click',()=>{ showTab('templates'); });
+
 /* ===== Beep (Web Audio) ===== */
 function playBeep(duration=0.25, frequency=880){
-  const ctx = new (window.AudioContext||window.webkitAudioContext)();
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.connect(gain); gain.connect(ctx.destination);
-  osc.type='square'; osc.frequency.value=frequency;
-  osc.start(); gain.gain.setValueAtTime(1, ctx.currentTime);
-  osc.stop(ctx.currentTime+duration);
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type='square'; osc.frequency.value=frequency;
+    osc.start(); gain.gain.setValueAtTime(1, ctx.currentTime);
+    osc.stop(ctx.currentTime+duration);
+  }catch(e){/* falha silenciosa */}
 }
 
 /* ===== 1RM / TM ===== */
@@ -318,147 +330,142 @@ function getTM(){
 }
 function showTMs(){
   const {sn,cj,fs,bs,dl,bp,oh}=getTM();
-  if($('#tmSn')){
-    $('#tmSn').textContent='TM Snatch: '+round05(sn)+' kg';
-    $('#tmCj').textContent='TM C&J: '+round05(cj)+' kg';
-    $('#tmFs').textContent='TM Front: '+round05(fs)+' kg';
-    $('#tmBs').textContent='TM Back: '+round05(bs)+' kg';
-    $('#tmDl').textContent='TM Terra: '+round05(dl)+' kg';
-    $('#tmBp').textContent='TM Supino: '+round05(bp)+' kg';
-    $('#tmOh').textContent='TM OHP: '+round05(oh)+' kg';
-  }
+  const set=(id,txt)=>{ const el=$(id); if(el) el.textContent = txt; };
+  set('#tmSn','TM Snatch: '+round05(sn)+' kg');
+  set('#tmCj','TM C&J: '+round05(cj)+' kg');
+  set('#tmFs','TM Front: '+round05(fs)+' kg');
+  set('#tmBs','TM Back: '+round05(bs)+' kg');
+  set('#tmDl','TM Terra: '+round05(dl)+' kg');
+  set('#tmBp','TM Supino: '+round05(bp)+' kg');
+  set('#tmOh','TM OHP: '+round05(oh)+' kg');
+}
+function save1RMData(obj){
+  localStorage.setItem(saveKey, JSON.stringify(obj));
+  showTMs(); renderAll();
 }
 $('#save1rm')?.addEventListener('click',()=>{
   const data={}; ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>data[id]=Number($('#'+id).value||0));
-  localStorage.setItem(saveKey,JSON.stringify(data)); showTMs(); renderAll();
+  save1RMData(data);
 });
 
-/* ===== Templates (Planos) ===== */
+/* ===== Templates (10 planos) ===== */
 const PLANS = {
-  balance: { label:'Balanceado (Técnica/Força)', desc:'Plano de base técnica com força moderada. Ideal para recomeço.',
-    days:{ /* baseado no que já usávamos (Semana 1) */
-      d1:[
-        {blk:'Mobilidade',ex:'Panturrilha, t-spine, Couch',sets:'2–3 min',lift:null,perc:null,link:'https://www.youtube.com/watch?v=ulgAOykAgV4'},
-        {blk:'Aquecimento',ex:'Burgener Warm-Up (Snatch)',sets:'1–2 voltas',lift:null,perc:null,link:'https://www.youtube.com/watch?v=4wLDeeHds58'},
-        {blk:'Técnico',ex:'Tall Snatch',sets:'5x3',lift:'sn',perc:[0.40,0.55],link:'https://www.catalystathletics.com/exercise/217/Tall-Snatch/'},
-        {blk:'LPO força',ex:'Overhead Squat',sets:'4x3',lift:'sn',perc:[0.55,0.55],link:'https://www.catalystathletics.com/exercise/79/Overhead-Squat/'},
-        {blk:'Força',ex:'Front Squat',sets:'4x5',lift:'fs',perc:[0.70,0.70],link:'https://www.catalystathletics.com/exercise/78/Front-Squat/'},
-        {blk:'Pull Snatch',ex:'Snatch High Pull',sets:'4x3',lift:'sn',perc:[0.75,0.75],link:'https://www.catalystathletics.com/exercise/99/Snatch-High-Pull/'},
-        {blk:'Acessório',ex:'1¼ Back Squat',sets:'3x5',lift:'bs',perc:[0.55,0.60],link:'https://www.catalystathletics.com/exercise/168/1-14-Back-Squat/'},
-        {blk:'Core',ex:'Prancha + Hollow',sets:'3x30–45s',lift:null,perc:null,link:''}
-      ],
-      d2:[
-        {blk:'Mobilidade',ex:'Dorsiflexão + t-spine',sets:'2–3 min',lift:null,perc:null,link:'https://www.physio-pedia.com/Knee_to_Wall_Test'},
-        {blk:'Aquecimento',ex:'Jerk dip/drive',sets:'2–3x',lift:null,perc:null,link:''},
-        {blk:'Técnico',ex:'Clean Pull',sets:'4x3',lift:'cj',perc:[0.85,0.85],link:'https://www.catalystathletics.com/exercise/98/Clean-Pull/'},
-        {blk:'LPO',ex:'Clean & Jerk (1+2)',sets:'6x',lift:'cj',perc:[0.60,0.60],link:'https://www.catalystathletics.com/exercise/86/Clean-Jerk/'},
-        {blk:'Força',ex:'Back Squat',sets:'5x3',lift:'bs',perc:[0.70,0.70],link:'https://www.catalystathletics.com/exercise/77/Back-Squat/'},
-        {blk:'Overhead',ex:'Push Press',sets:'4x4',lift:'cj',perc:[0.70,0.70],link:'https://www.catalystathletics.com/exercise/87/Push-Press/'},
-        {blk:'Acessório',ex:'Romanian Deadlift',sets:'3x8',lift:'dl',perc:[0.40,0.40],link:''},
-        {blk:'Core',ex:'Farmer Carry pesado',sets:'4x20–30 m',lift:null,perc:null,link:''}
-      ],
-      d3:[
-        {blk:'Mobilidade',ex:'PVC dislocates + Couch',sets:'2–3 min',lift:null,perc:null,link:'https://www.youtube.com/watch?v=j32NGzthtN4'},
-        {blk:'Aquecimento',ex:'Saltos + agacho com pausa',sets:'—',lift:null,perc:null,link:''},
-        {blk:'Overhead',ex:'Press Behind-the-Neck',sets:'4x5',lift:'cj',perc:[0.60,0.60],link:'https://www.catalystathletics.com/exercise/204/Press-Behind-The-Neck/'},
-        {blk:'Estab.',ex:'Snatch Balance',sets:'5x2',lift:'sn',perc:[0.60,0.60],link:'https://www.catalystathletics.com/exercise/90/Snatch-Balance/'},
-        {blk:'Pull Clean',ex:'Clean High Pull',sets:'4x3',lift:'cj',perc:[0.85,0.85],link:'https://www.catalystathletics.com/exercise/100/Clean-High-Pull/'},
-        {blk:'Acessório',ex:'Back Squat Jump',sets:'4x5',lift:null,perc:null,link:'https://www.catalystathletics.com/exercise/353/Back-Squat-Jump/'},
-        {blk:'Core',ex:'Pallof + Side plank',sets:'3x10 / 3x30–45s',lift:null,perc:null,link:''}
-      ],
-      d4:[
-        {blk:'Mobilidade',ex:'Panturrilha + glúteo + t-spine',sets:'2–3 min',lift:null,perc:null,link:''},
-        {blk:'Aquecimento',ex:'Tall Muscle Snatch',sets:'4x3',lift:'sn',perc:[0.35,0.35],link:'https://www.catalystathletics.com/exercise/543/Tall-Muscle-Snatch/'},
-        {blk:'Complexo',ex:'Hang Snatch High Pull + OHS',sets:'6x (2+1)',lift:'sn',perc:[0.55,0.55],link:'https://www.catalystathletics.com/exercise/403/Block-Snatch-High-Pull/'},
-        {blk:'Força',ex:'Front Squat',sets:'5x3',lift:'fs',perc:[0.725,0.725],link:'https://www.catalystathletics.com/exercise/78/Front-Squat/'},
-        {blk:'Técnica Jerk',ex:'Push Press BTN',sets:'4x3',lift:'cj',perc:[0.65,0.65],link:'https://www.catalystathletics.com/exercise/88/Push-Press-Behind-The-Neck/'},
-        {blk:'Mobilidade',ex:'Clean-Grip OHS (leve)',sets:'3x5',lift:'sn',perc:[0.35,0.35],link:'https://www.catalystathletics.com/exercise/420/Clean-Grip-Overhead-Squat/'},
-        {blk:'Core',ex:'Overhead carry (barra/PVC)',sets:'3–4 x 20–30 m',lift:null,perc:null,link:''}
-      ]
-    }
-  },
-  strength: { label:'Força Máxima', desc:'Mais volume em agachamentos e puxadas; LPO moderado.',
-    days:{
-      d1:[
-        {blk:'Aquecimento',ex:'Burgener (Snatch)',sets:'1–2 voltas',lift:null,perc:null,link:'https://www.youtube.com/watch?v=4wLDeeHds58'},
-        {blk:'Força',ex:'Back Squat',sets:'5x5',lift:'bs',perc:[0.75,0.80],link:'https://www.catalystathletics.com/exercise/77/Back-Squat/'},
-        {blk:'Técnico',ex:'Power Snatch',sets:'5x2',lift:'sn',perc:[0.65,0.70],link:''},
-        {blk:'Pull',ex:'Snatch Pull',sets:'4x3',lift:'sn',perc:[0.90,0.95],link:''},
-        {blk:'Core',ex:'Hollow + Superman',sets:'3x30–45s',lift:null,perc:null,link:''}
-      ],
-      d2:[
-        {blk:'Aquecimento',ex:'Jerk dip/drive',sets:'2–3x',lift:null,perc:null,link:''},
-        {blk:'Força',ex:'Front Squat',sets:'5x3',lift:'fs',perc:[0.80,0.85],link:'https://www.catalystathletics.com/exercise/78/Front-Squat/'},
-        {blk:'LPO',ex:'Clean & Jerk',sets:'6x1',lift:'cj',perc:[0.75,0.80],link:'https://www.catalystathletics.com/exercise/86/Clean-Jerk/'},
-        {blk:'Pull',ex:'Clean Pull',sets:'4x3',lift:'cj',perc:[0.95,0.95],link:'https://www.catalystathletics.com/exercise/98/Clean-Pull/'},
-        {blk:'Acessório',ex:'Romanian Deadlift',sets:'3x6',lift:'dl',perc:[0.55,0.60],link:''}
-      ],
-      d3:[
-        {blk:'Overhead',ex:'Push Press BTN',sets:'5x4',lift:'cj',perc:[0.70,0.75],link:'https://www.catalystathletics.com/exercise/88/Push-Press-Behind-The-Neck/'},
-        {blk:'Estab.',ex:'Snatch Balance',sets:'5x2',lift:'sn',perc:[0.65,0.70],link:'https://www.catalystathletics.com/exercise/90/Snatch-Balance/'},
-        {blk:'Pull',ex:'Snatch High Pull',sets:'4x3',lift:'sn',perc:[0.95,0.95],link:'https://www.catalystathletics.com/exercise/99/Snatch-High-Pull/'},
-        {blk:'Core',ex:'Pallof + Side plank',sets:'3x12 / 3x30–45s',lift:null,perc:null,link:''}
-      ],
-      d4:[
-        {blk:'Força',ex:'Back Squat',sets:'5x5',lift:'bs',perc:[0.80,0.80],link:'https://www.catalystathletics.com/exercise/77/Back-Squat/'},
-        {blk:'Técnico',ex:'Power Clean + Jerk',sets:'5x(2+1)',lift:'cj',perc:[0.70,0.75],link:''},
-        {blk:'Acessório',ex:'Clean-Grip RDL',sets:'3x6',lift:'dl',perc:[0.60,0.60],link:''},
-        {blk:'Core',ex:'Carry pesado',sets:'4x20–30 m',lift:null,perc:null,link:''}
-      ]
-    }
-  },
-  hypertrophy: { label:'Volume/Hipertrofia', desc:'Mais repetições e faixas 60–75% para qualidade técnica.',
-    days:{
-      d1:[
-        {blk:'Técnico',ex:'Tall Snatch',sets:'6x3',lift:'sn',perc:[0.45,0.55],link:''},
-        {blk:'LPO',ex:'Snatch',sets:'8x2',lift:'sn',perc:[0.65,0.70],link:''},
-        {blk:'Força',ex:'Front Squat',sets:'4x6',lift:'fs',perc:[0.70,0.70],link:''},
-        {blk:'Pull',ex:'Snatch Pull',sets:'4x3',lift:'sn',perc:[0.90,0.90],link:''}
-      ],
-      d2:[
-        {blk:'Técnico',ex:'Jerk dip/drive',sets:'4x3',lift:null,perc:null,link:''},
-        {blk:'LPO',ex:'Clean & Jerk',sets:'6x2',lift:'cj',perc:[0.70,0.75],link:''},
-        {blk:'Força',ex:'Back Squat',sets:'4x6',lift:'bs',perc:[0.70,0.75],link:''},
-        {blk:'Overhead',ex:'Push Press',sets:'4x6',lift:'cj',perc:[0.65,0.70],link:''}
-      ],
-      d3:[
-        {blk:'Estab.',ex:'Snatch Balance',sets:'5x3',lift:'sn',perc:[0.60,0.65],link:''},
-        {blk:'Pull',ex:'Clean High Pull',sets:'4x3',lift:'cj',perc:[0.90,0.90],link:''},
-        {blk:'Acessório',ex:'Back Squat Jump',sets:'4x5',lift:null,perc:null,link:''}
-      ],
-      d4:[
-        {blk:'Complexo',ex:'Power Snatch + OHS',sets:'6x(2+2)',lift:'sn',perc:[0.60,0.65],link:''},
-        {blk:'Força',ex:'Front Squat',sets:'5x5',lift:'fs',perc:[0.70,0.75],link:''},
-        {blk:'Overhead',ex:'BTN Press',sets:'4x6',lift:'cj',perc:[0.60,0.65],link:''}
-      ]
-    }
-  },
-  peaking: { label:'Pico/Competição', desc:'Baixa volume, intensidade alta para maximizar 1RM.',
-    days:{
-      d1:[
-        {blk:'LPO',ex:'Snatch simples',sets:'6x1',lift:'sn',perc:[0.80,0.85],link:''},
-        {blk:'Força',ex:'Front Squat',sets:'4x3',lift:'fs',perc:[0.80,0.85],link:''},
-        {blk:'Pull',ex:'Snatch Pull',sets:'3x2',lift:'sn',perc:[1.00,1.05],link:''}
-      ],
-      d2:[
-        {blk:'LPO',ex:'Clean & Jerk simples',sets:'5x1',lift:'cj',perc:[0.80,0.85],link:''},
-        {blk:'Força',ex:'Back Squat',sets:'3x3',lift:'bs',perc:[0.80,0.85],link:''}
-      ],
-      d3:[
-        {blk:'Overhead',ex:'BTN Press',sets:'4x3',lift:'cj',perc:[0.65,0.70],link:''},
-        {blk:'Técnico',ex:'Snatch Balance leve',sets:'3x2',lift:'sn',perc:[0.55,0.60],link:''}
-      ],
-      d4:[
-        {blk:'LPO',ex:'Power Clean + Jerk',sets:'4x(1+1)',lift:'cj',perc:[0.75,0.80],link:''},
-        {blk:'Mobilidade',ex:'Mobilidade geral',sets:'10–15 min',lift:null,perc:null,link:''}
-      ]
-    }
-  }
+  /* 1–2) LPO */
+  lpo_base:{label:'LPO – Base Técnica',desc:'Base técnica + força moderada (recomeço).',
+   days:{
+    d1:[{blk:'Mobilidade',ex:'Panturrilha/t-spine/Couch',sets:'2–3 min'},
+        {blk:'Aquecimento',ex:'Burgener (Snatch)',sets:'1–2 voltas',link:'https://www.youtube.com/watch?v=4wLDeeHds58'},
+        {blk:'Técnico',ex:'Tall Snatch',sets:'5x3',lift:'sn',perc:[0.40,0.55]},
+        {blk:'LPO força',ex:'Overhead Squat',sets:'4x3',lift:'sn',perc:[0.55,0.55]},
+        {blk:'Força',ex:'Front Squat',sets:'4x5',lift:'fs',perc:[0.70,0.70]},
+        {blk:'Pull',ex:'Snatch High Pull',sets:'4x3',lift:'sn',perc:[0.75,0.75]}],
+    d2:[{blk:'Técnico',ex:'Clean Pull',sets:'4x3',lift:'cj',perc:[0.85,0.85]},
+        {blk:'LPO',ex:'Clean & Jerk (1+2)',sets:'6x',lift:'cj',perc:[0.60,0.60]},
+        {blk:'Força',ex:'Back Squat',sets:'5x3',lift:'bs',perc:[0.70,0.70]},
+        {blk:'Overhead',ex:'Push Press',sets:'4x4',lift:'cj',perc:[0.70,0.70]}],
+    d3:[{blk:'Overhead',ex:'BTN Press',sets:'4x5',lift:'cj',perc:[0.60,0.60]},
+        {blk:'Estab.',ex:'Snatch Balance',sets:'5x2',lift:'sn',perc:[0.60,0.60]},
+        {blk:'Pull',ex:'Clean High Pull',sets:'4x3',lift:'cj',perc:[0.85,0.85]}],
+    d4:[{blk:'Complexo',ex:'Hang Snatch HP + OHS',sets:'6x (2+1)',lift:'sn',perc:[0.55,0.55]},
+        {blk:'Força',ex:'Front Squat',sets:'5x3',lift:'fs',perc:[0.725,0.725]},
+        {blk:'Técnica Jerk',ex:'Push Press BTN',sets:'4x3',lift:'cj',perc:[0.65,0.65]}]
+   }},
+  lpo_peak:{label:'LPO – Pico',desc:'Baixo volume, intensidade alta.',
+   days:{
+    d1:[{blk:'LPO',ex:'Snatch simples',sets:'6x1',lift:'sn',perc:[0.80,0.85]},
+        {blk:'Força',ex:'Front Squat',sets:'4x3',lift:'fs',perc:[0.80,0.85]}],
+    d2:[{blk:'LPO',ex:'Clean & Jerk simples',sets:'5x1',lift:'cj',perc:[0.80,0.85]},
+        {blk:'Força',ex:'Back Squat',sets:'3x3',lift:'bs',perc:[0.80,0.85]}],
+    d3:[{blk:'Overhead',ex:'BTN Press',sets:'4x3',lift:'cj',perc:[0.65,0.70]},
+        {blk:'Estab.',ex:'Snatch Balance leve',sets:'3x2',lift:'sn',perc:[0.55,0.60]}],
+    d4:[{blk:'LPO',ex:'Power Clean + Jerk',sets:'4x(1+1)',lift:'cj',perc:[0.75,0.80]}]
+   }},
+  /* 3–4) Powerbuilding */
+  pb_a:{label:'Powerbuilding A',desc:'Força nos compostos + volume de musculação.',
+   days:{
+    d1:[{blk:'Força',ex:'Back Squat',sets:'5x5',lift:'bs',perc:[0.75,0.80]},
+        {blk:'Técnico',ex:'Power Snatch',sets:'5x2',lift:'sn',perc:[0.65,0.70]},
+        {blk:'Pull',ex:'Snatch Pull',sets:'4x3',lift:'sn',perc:[0.90,0.95]}],
+    d2:[{blk:'Força',ex:'Bench Press',sets:'5x5',lift:'bp',perc:[0.75,0.80]},
+        {blk:'LPO',ex:'Clean & Jerk',sets:'6x1',lift:'cj',perc:[0.75,0.80]},
+        {blk:'Pull',ex:'Clean Pull',sets:'4x3',lift:'cj',perc:[0.95,0.95]}],
+    d3:[{blk:'Força',ex:'Deadlift',sets:'5x3',lift:'dl',perc:[0.80,0.85]},
+        {blk:'Overhead',ex:'Push Press',sets:'4x6',lift:'cj',perc:[0.65,0.70]}],
+    d4:[{blk:'Força',ex:'Front Squat',sets:'4x6',lift:'fs',perc:[0.70,0.75]},
+        {blk:'Técnico',ex:'Snatch técnica leve',sets:'6x2',lift:'sn',perc:[0.60,0.65]}]
+   }},
+  pb_b:{label:'Powerbuilding B',desc:'Ênfase superior + puxadas pesadas.',
+   days:{
+    d1:[{blk:'Força',ex:'Back Squat',sets:'4x6',lift:'bs',perc:[0.72,0.77]},
+        {blk:'LPO',ex:'Snatch',sets:'6x2',lift:'sn',perc:[0.70,0.75]}],
+    d2:[{blk:'Força',ex:'Bench Press',sets:'5x3',lift:'bp',perc:[0.80,0.85]},
+        {blk:'Pull',ex:'Clean Pull',sets:'4x3',lift:'cj',perc:[0.90,0.95]}],
+    d3:[{blk:'Força',ex:'Deadlift',sets:'5x5',lift:'dl',perc:[0.70,0.80]},
+        {blk:'Overhead',ex:'BTN Press',sets:'4x5',lift:'cj',perc:[0.65,0.70]}],
+    d4:[{blk:'Força',ex:'Front Squat',sets:'5x5',lift:'fs',perc:[0.72,0.77]},
+        {blk:'Técnico',ex:'Clean técnica leve',sets:'6x1',lift:'cj',perc:[0.70,0.75]}]
+   }},
+  /* 5–6) Powerlifting */
+  pl_a:{label:'Powerlifting A',desc:'Ênfase em SMR: Squat, Bench, Dead.',
+   days:{
+    d1:[{blk:'Força',ex:'Back Squat',sets:'5x5',lift:'bs',perc:[0.75,0.80]},
+        {blk:'Acessório',ex:'RDL',sets:'3x6',lift:'dl',perc:[0.60,0.65]}],
+    d2:[{blk:'Força',ex:'Bench Press',sets:'5x5',lift:'bp',perc:[0.75,0.80]},
+        {blk:'Overhead',ex:'OHP',sets:'4x6',lift:'oh',perc:[0.65,0.70]}],
+    d3:[{blk:'Força',ex:'Deadlift',sets:'5x3',lift:'dl',perc:[0.80,0.85]},
+        {blk:'Acessório',ex:'Front Squat leve',sets:'3x5',lift:'fs',perc:[0.60,0.65]}],
+    d4:[{blk:'Força',ex:'Back Squat',sets:'3x3',lift:'bs',perc:[0.82,0.87]},
+        {blk:'Força',ex:'Bench Press',sets:'3x3',lift:'bp',perc:[0.82,0.87]}]
+   }},
+  pl_b:{label:'Powerlifting B',desc:'Ondulações 3–5 reps.',
+   days:{
+    d1:[{blk:'Força',ex:'Back Squat',sets:'4x3',lift:'bs',perc:[0.82,0.87]}],
+    d2:[{blk:'Força',ex:'Bench Press',sets:'5x3',lift:'bp',perc:[0.80,0.85]}],
+    d3:[{blk:'Força',ex:'Deadlift',sets:'6x2',lift:'dl',perc:[0.82,0.88]}],
+    d4:[{blk:'Força',ex:'Front Squat',sets:'4x4',lift:'fs',perc:[0.75,0.80]}]
+   }},
+  /* 7–8) Pull–Push–Legs (adaptado a 4 dias) */
+  ppl_a:{label:'PPL A (4 dias)',desc:'Puxar/Empurrar/Pernas + técnico LPO.',
+   days:{
+    d1:[{blk:'Pull',ex:'Barra fixa / remada',sets:'4x8'},
+        {blk:'Técnico',ex:'Power Clean',sets:'6x1',lift:'cj',perc:[0.70,0.75]}],
+    d2:[{blk:'Push',ex:'Bench Press',sets:'4x6',lift:'bp',perc:[0.72,0.77]},
+        {blk:'Overhead',ex:'Push Press',sets:'4x5',lift:'cj',perc:[0.65,0.70]}],
+    d3:[{blk:'Legs',ex:'Back Squat',sets:'5x5',lift:'bs',perc:[0.75,0.80]},
+        {blk:'Técnico',ex:'Snatch técnica',sets:'6x2',lift:'sn',perc:[0.65,0.70]}],
+    d4:[{blk:'Pull',ex:'Deadlift',sets:'4x4',lift:'dl',perc:[0.75,0.80]}]
+   }},
+  ppl_b:{label:'PPL B (4 dias)',desc:'Mais volume em puxadas + LPO moderado.',
+   days:{
+    d1:[{blk:'Pull',ex:'Remada curvada',sets:'5x8'},
+        {blk:'Técnico',ex:'Clean Pull',sets:'4x3',lift:'cj',perc:[0.90,0.95]}],
+    d2:[{blk:'Push',ex:'OHP',sets:'5x5',lift:'oh',perc:[0.70,0.75]},
+        {blk:'Push',ex:'Bench Press',sets:'4x6',lift:'bp',perc:[0.72,0.77]}],
+    d3:[{blk:'Legs',ex:'Front Squat',sets:'5x5',lift:'fs',perc:[0.72,0.77]},
+        {blk:'Técnico',ex:'Snatch Pull',sets:'4x3',lift:'sn',perc:[0.90,0.95]}],
+    d4:[{blk:'Pull',ex:'Deadlift',sets:'5x3',lift:'dl',perc:[0.80,0.85]}]
+   }},
+  /* 9–10) PHAT */
+  phat_a:{label:'PHAT A',desc:'Power Hypertrophy A.',
+   days:{
+    d1:[{blk:'Power',ex:'Back Squat',sets:'5x3',lift:'bs',perc:[0.82,0.87]},
+        {blk:'Power',ex:'Bench Press',sets:'5x3',lift:'bp',perc:[0.82,0.87]}],
+    d2:[{blk:'Hypertrophy',ex:'Upper (remo, supino incl.)',sets:'3–4x10–12'}],
+    d3:[{blk:'Power',ex:'Deadlift',sets:'5x2',lift:'dl',perc:[0.85,0.90]}],
+    d4:[{blk:'Hypertrophy',ex:'Lower (agacho hack, leg press)',sets:'3–4x10–12'}]
+   }},
+  phat_b:{label:'PHAT B',desc:'Power Hypertrophy B.',
+   days:{
+    d1:[{blk:'Power',ex:'Front Squat',sets:'5x3',lift:'fs',perc:[0.80,0.85]}],
+    d2:[{blk:'Hypertrophy',ex:'Upper (ombros/tríceps)',sets:'3–4x10–12'}],
+    d3:[{blk:'Power',ex:'Bench Press',sets:'5x3',lift:'bp',perc:[0.82,0.87]}],
+    d4:[{blk:'Hypertrophy',ex:'Lower (quadríceps + posterior)',sets:'3–4x10–12'}]
+   }}
 };
 
-function getPlanKey(){ return localStorage.getItem(planKey) || 'balance'; }
+function getPlanKey(){ return localStorage.getItem(planKey) || 'lpo_base'; }
 function setPlanKey(k){ localStorage.setItem(planKey,k); updatePlanLabels(); renderAll(); }
-function getPlan(){ return PLANS[getPlanKey()] || PLANS.balance; }
+function getPlan(){ return PLANS[getPlanKey()] || PLANS.lpo_base; }
 
 function fillPlanSelect(){
   const sel = $('#planSelect'); sel.innerHTML='';
@@ -467,28 +474,36 @@ function fillPlanSelect(){
     opt.value=k; opt.textContent=PLANS[k].label; sel.appendChild(opt);
   });
   sel.value = getPlanKey();
-  $('#planDesc').textContent = PLANS[sel.value].desc;
+  $('#planDesc').textContent = PLANS[sel.value].desc || '';
 }
 function updatePlanLabels(){
   const k=getPlanKey();
-  $('#planNameNow').textContent = PLANS[k].label;
-  $('#planNameTreino').textContent = PLANS[k].label;
+  const label = (PLANS[k]&&PLANS[k].label)||'—';
+  const a=(id)=>{const el=$(id); if(el) el.textContent=label;};
+  a('#planNameNow'); a('#planNameTreino');
 }
 
 /* eventos templates */
 document.addEventListener('change',e=>{
-  if(e.target.id==='planSelect'){
-    const k=e.target.value; $('#planDesc').textContent = PLANS[k].desc;
+  if(e.target && e.target.id==='planSelect'){
+    const k=e.target.value; $('#planDesc').textContent = (PLANS[k]&&PLANS[k].desc)||'';
   }
 });
-$('#applyPlan')?.addEventListener('click',()=>{ setPlanKey($('#planSelect').value); alert('Template aplicado: '+PLANS[getPlanKey()].label); });
-$('#resetPlan')?.addEventListener('click',()=>{ setPlanKey('balance'); $('#planSelect').value='balance'; $('#planDesc').textContent=PLANS.balance.desc; });
-$('#exportPlan')?.addEventListener('click',()=>{
-  const j = JSON.stringify(getPlan(), null, 2);
-  $('#planJSON').value = j;
-  alert('Plano atual exportado para a caixa abaixo. Copie e salve se quiser.');
+$('#applyPlan').addEventListener('click',()=>{
+  const k=$('#planSelect').value; setPlanKey(k);
+  alert('Template aplicado: '+(PLANS[k]&&PLANS[k].label));
+  showTab('treino');
 });
-$('#importPlan')?.addEventListener('click',()=>{
+$('#resetPlan').addEventListener('click',()=>{
+  setPlanKey('lpo_base'); fillPlanSelect();
+  alert('Template padrão (LPO – Base Técnica) aplicado.');
+  showTab('treino');
+});
+$('#exportPlan').addEventListener('click',()=>{
+  $('#planJSON').value = JSON.stringify(getPlan(), null, 2);
+  alert('Plano atual exportado para a caixa abaixo.');
+});
+$('#importPlan').addEventListener('click',()=>{
   try{
     const obj = JSON.parse($('#planJSON').value||'{}');
     if(!obj.label || !obj.days) throw new Error('JSON inválido.');
@@ -496,6 +511,7 @@ $('#importPlan')?.addEventListener('click',()=>{
     PLANS[key]=obj;
     fillPlanSelect(); $('#planSelect').value=key; $('#planDesc').textContent=obj.desc||'';
     setPlanKey(key); alert('Template importado e aplicado: '+obj.label);
+    showTab('treino');
   }catch(err){ alert('Erro ao importar: '+err.message); }
 });
 
@@ -503,20 +519,24 @@ $('#importPlan')?.addEventListener('click',()=>{
 function calc1RM(weight, reps, formula='brzycki'){
   reps = Math.min(Math.max(1, Number(reps)||1), 10);
   weight = Number(weight)||0;
-  if(formula==='epley'){ return weight * (1 + reps/30); }
-  // brzycki
-  return weight * (36 / (37 - reps));
+  return (formula==='epley') ? weight*(1+reps/30) : weight*(36/(37-reps));
 }
-$('#calcDo')?.addEventListener('click',()=>{
+$('#calcDo').addEventListener('click',()=>{
   const w=Number($('#calcWeight').value||0), r=Number($('#calcReps').value||1), f=$('#calcFormula').value;
   $('#calcOut').value = round05(calc1RM(w,r,f));
 });
-$('#calcApply')?.addEventListener('click',()=>{
-  const lift=$('#calcLift').value, val=Number($('#calcOut').value||0);
+$('#calcApply').addEventListener('click',()=>{
+  const val=Number($('#calcOut').value||0);
+  if(!val){ alert('Calcule a 1RM primeiro.'); return; }
+  const lift=$('#calcLift').value;
   const map={sn:'sn1',cj:'cj1',fs:'fs1',bs:'bs1',dl:'dl1',bp:'bp1',oh:'oh1'};
-  const id=map[lift]; if(!id){alert('Selecione um exercício.');return;}
-  const el=$('#'+id); if(!el){alert('Abra a aba “Config 1RM” para ver os campos.');}
-  el.value = val; $('#save1rm').click();
+  const id=map[lift]; const el=$('#'+id);
+  if(!el){ alert('Campo de 1RM não encontrado.'); return; }
+  el.value=val;
+  const data={}; ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(i=>data[i]=Number($('#'+i).value||0));
+  save1RMData(data);
+  alert('1RM de '+$('#calcLift').selectedOptions[0].text+' atualizado para '+val+' kg. TMs recalculadas.');
+  showTab('treino');
 });
 
 /* ===== Render do Treino ===== */
@@ -534,21 +554,19 @@ function addCheckboxListeners(dayId, defaultRest=90){
 
 function renderDay(dayId, arr){
   const tm=getTM(); let html='';
-  arr.forEach((it,idx)=>{
+  (arr||[]).forEach((it,idx)=>{
     const base = it.lift? tm[it.lift]||0 : 0;
-    const presc = kgText(base, it.perc);
-    const defKg = kgDefault(base, it.perc);
     const link = it.link? `<a target=_blank href="${it.link}">ver</a>` : '—';
     html += `<tr data-lift="${it.lift||''}" data-perc="${it.perc?it.perc.join(','):''}">
-      <td>${idx+1}</td><td>${it.blk}</td><td>${it.ex}</td><td>${it.sets}</td><td>${presc}</td>
-      <td><input type="number" step="0.5" value="${defKg}"></td>
+      <td>${idx+1}</td><td>${it.blk||''}</td><td>${it.ex||''}</td><td>${it.sets||''}</td>
+      <td>${it.lift?kgText(base, it.perc):'—'}</td>
+      <td><input type="number" step="0.5" value="${it.lift?kgDefault(base, it.perc):0}"></td>
       <td><select><option value="">—</option>${[6,7,8,8.5,9,9.5,10].map(v=>`<option>${v}</option>`).join('')}</select></td>
       <td style="text-align:center"><input type="checkbox"></td>
       <td><span class="timer" id="${dayId}-t${idx}">00:00</span>
           <button class="btn ghost start" data-for="${dayId}-t${idx}">▶</button>
           <button class="btn ghost stop" data-for="${dayId}-t${idx}">⏸</button>
-          <button class="btn ghost reset" data-for="${dayId}-t${idx}">⟲</button>
-      </td>
+          <button class="btn ghost reset" data-for="${dayId}-t${idx}">⟲</button></td>
       <td>${link}</td>
     </tr>`;
   });
@@ -560,10 +578,10 @@ function renderAll(){
   const PLAN = getPlan();
   updatePlanLabels();
   ['d1','d2','d3','d4'].forEach(d=>{ const el=$('#date-'+d); if(el && !el.value) el.value=today(); });
-  renderDay('d1', PLAN.days.d1||[]);
-  renderDay('d2', PLAN.days.d2||[]);
-  renderDay('d3', PLAN.days.d3||[]);
-  renderDay('d4', PLAN.days.d4||[]);
+  renderDay('d1', PLAN.days.d1);
+  renderDay('d2', PLAN.days.d2);
+  renderDay('d3', PLAN.days.d3);
+  renderDay('d4', PLAN.days.d4);
 }
 
 /* ===== Timers ===== */
