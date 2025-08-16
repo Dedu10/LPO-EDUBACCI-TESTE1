@@ -28,7 +28,7 @@
   details{background:#0f1420;border:1px solid #22304a;border-radius:10px;margin:8px 0;overflow:hidden}
   details>summary{cursor:pointer;list-style:none;padding:12px 14px;font-weight:700}
   details>summary::-webkit-details-marker{display:none}
-  table{width:100%;border-collapse:collapse;margin:8px 0;border-radius:8px;overflow:hidden}
+  table{width:100%;border-collapse:collapse;margin:8px 0;border-radius:8px;overflow:hidden;min-width:850px}
   th,td{border-bottom:1px solid #22304a;padding:8px;text-align:left;font-size:14px;vertical-align:middle}
   th{background:#101726}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -36,6 +36,7 @@
   .pill{border:1px solid #2a3b5e;padding:2px 8px;border-radius:999px;font-size:12px;color:#9fb3c8;margin-right:6px}
   .timer{font-variant-numeric:tabular-nums}
   .hide{display:none}
+  .done{background:#1f2940} /* linha marcada */
   footer{color:#9fb3c8;text-align:center;padding:24px}
 </style>
 </head>
@@ -83,9 +84,9 @@
           <button id="sess-reset" class="btn ghost">Zerar</button>
         </div>
       </div>
-      <div class="muted">Use os timers de descanso por exercício (60/90/120s), ajuste “Real (kg)”, marque “Feito” e escolha o RPE.</div>
+      <div class="muted">Ao marcar “Feito” o descanso (90 s) inicia automaticamente. Use os RPEs e tempos para ajuste futuro.</div>
 
-      <!-- D1 -->
+      <!-- Dia 1 -->
       <details open>
         <summary>DIA 1 — Snatch + Front Squat</summary>
         <div class="row">
@@ -97,20 +98,19 @@
             <span class="pill">Rest: <span id="rest-d1" class="timer">00:00</span></span>
           </div>
         </div>
-        <table>
-          <thead><tr>
-            <th>#</th><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th>
-            <th>Prescrito (kg)</th><th>Real (kg)</th><th>RPE</th><th>Feito</th><th>Timer</th><th>Vídeo</th>
-          </tr></thead>
-          <tbody id="d1"></tbody>
-        </table>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>#</th><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Prescrito (kg)</th><th>Real (kg)</th><th>RPE</th><th>Feito</th><th>Timer</th><th>Vídeo</th></tr></thead>
+            <tbody id="d1"></tbody>
+          </table>
+        </div>
         <div class="row">
           <button class="btn" data-save-day="d1">Salvar sessão (Dia 1)</button>
           <button class="btn ghost" data-markall="d1">Marcar tudo Feito</button>
         </div>
       </details>
 
-      <!-- D2 -->
+      <!-- Dia 2 -->
       <details>
         <summary>DIA 2 — Clean & Jerk + Back Squat</summary>
         <div class="row">
@@ -122,20 +122,19 @@
             <span class="pill">Rest: <span id="rest-d2" class="timer">00:00</span></span>
           </div>
         </div>
-        <table>
-          <thead><tr>
-            <th>#</th><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th>
-            <th>Prescrito (kg)</th><th>Real (kg)</th><th>RPE</th><th>Feito</th><th>Timer</th><th>Vídeo</th>
-          </tr></thead>
-          <tbody id="d2"></tbody>
-        </table>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>#</th><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Prescrito (kg)</th><th>Real (kg)</th><th>RPE</th><th>Feito</th><th>Timer</th><th>Vídeo</th></tr></thead>
+            <tbody id="d2"></tbody>
+          </table>
+        </div>
         <div class="row">
           <button class="btn" data-save-day="d2">Salvar sessão (Dia 2)</button>
           <button class="btn ghost" data-markall="d2">Marcar tudo Feito</button>
         </div>
       </details>
 
-      <!-- D3 -->
+      <!-- Dia 3 -->
       <details>
         <summary>DIA 3 — Estabilidade Overhead + Puxadas</summary>
         <div class="row">
@@ -147,20 +146,19 @@
             <span class="pill">Rest: <span id="rest-d3" class="timer">00:00</span></span>
           </div>
         </div>
-        <table>
-          <thead><tr>
-            <th>#</th><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th>
-            <th>Prescrito (kg)</th><th>Real (kg)</th><th>RPE</th><th>Feito</th><th>Timer</th><th>Vídeo</th>
-          </tr></thead>
-          <tbody id="d3"></tbody>
-        </table>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>#</th><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Prescrito (kg)</th><th>Real (kg)</th><th>RPE</th><th>Feito</th><th>Timer</th><th>Vídeo</th></tr></thead>
+            <tbody id="d3"></tbody>
+          </table>
+        </div>
         <div class="row">
           <button class="btn" data-save-day="d3">Salvar sessão (Dia 3)</button>
           <button class="btn ghost" data-markall="d3">Marcar tudo Feito</button>
         </div>
       </details>
 
-      <!-- D4 -->
+      <!-- Dia 4 -->
       <details>
         <summary>DIA 4 — Complexos técnicos + Front Squat</summary>
         <div class="row">
@@ -172,13 +170,12 @@
             <span class="pill">Rest: <span id="rest-d4" class="timer">00:00</span></span>
           </div>
         </div>
-        <table>
-          <thead><tr>
-            <th>#</th><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th>
-            <th>Prescrito (kg)</th><th>Real (kg)</th><th>RPE</th><th>Feito</th><th>Timer</th><th>Vídeo</th>
-          </tr></thead>
-          <tbody id="d4"></tbody>
-        </table>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>#</th><th>Bloco</th><th>Exercício</th><th>Séries x Reps</th><th>Prescrito (kg)</th><th>Real (kg)</th><th>RPE</th><th>Feito</th><th>Timer</th><th>Vídeo</th></tr></thead>
+            <tbody id="d4"></tbody>
+          </table>
+        </div>
         <div class="row">
           <button class="btn" data-save-day="d4">Salvar sessão (Dia 4)</button>
           <button class="btn ghost" data-markall="d4">Marcar tudo Feito</button>
@@ -213,18 +210,46 @@ const round05 = v => Math.round(v*2)/2;
 const perc = (tm, p) => round05(tm * p);
 const saveKey = 'lpo_tm_v2';
 const sessKey = 'lpo_sessions_v2';
+
+/* Guarda tempos de descanso acumulados por dia */
+const restTotals = {};
+
+/*** Beep simples via Web Audio ***/
+function playBeep(duration=0.25, frequency=880){
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.type = 'square';
+  osc.frequency.value = frequency;
+  osc.start();
+  gain.gain.setValueAtTime(1, ctx.currentTime);
+  osc.stop(ctx.currentTime + duration);
+}
+
+/*** Carrega 1RM salvo ***/
 function load1RM(){
-  try{const s=JSON.parse(localStorage.getItem(saveKey)||'{}');
-    ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>{if(s[id]!=null&&$( '#'+id)) $('#'+id).value=s[id];});
+  try{
+    const s=JSON.parse(localStorage.getItem(saveKey)||'{}');
+    ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(s[id]!=null && el) el.value=s[id];
+    });
   }catch(e){}
 }
-function getTM(){ // 90% dos 1RMs
+
+/*** Calcula TMs (90% 1RM) ***/
+function getTM(){
   const g=id=>Number($('#'+id)?.value||0)*0.9;
   return {sn:g('sn1'), cj:g('cj1'), fs:g('fs1'), bs:g('bs1'), dl:g('dl1'), bp:g('bp1'), oh:g('oh1')};
 }
+
+/*** Mostra etiquetas de TM ***/
 function showTMs(){
   const {sn,cj,fs,bs,dl,bp,oh}=getTM();
-  if($('#tmSn')){ $('#tmSn').textContent='TM Snatch: '+round05(sn)+' kg';
+  if($('#tmSn')){
+    $('#tmSn').textContent='TM Snatch: '+round05(sn)+' kg';
     $('#tmCj').textContent='TM C&J: '+round05(cj)+' kg';
     $('#tmFs').textContent='TM Front: '+round05(fs)+' kg';
     $('#tmBs').textContent='TM Back: '+round05(bs)+' kg';
@@ -233,13 +258,17 @@ function showTMs(){
     $('#tmOh').textContent='TM OHP: '+round05(oh)+' kg';
   }
 }
+
+/*** Persiste 1RM ***/
 $('#save1rm')?.addEventListener('click',()=>{
-  const data={}; ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>data[id]=Number($('#'+id).value||0));
-  localStorage.setItem(saveKey,JSON.stringify(data)); showTMs(); renderAll();
+  const data={};
+  ['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>data[id]=Number($('#'+id).value||0));
+  localStorage.setItem(saveKey,JSON.stringify(data));
+  showTMs();
+  renderAll();
 });
 
-/*** ===== Programa Semana 1 ===== ***/
-// lift: qual TM usar: sn,cj,fs,bs,dl,bp,oh | perc: [min,max] ou null p/ mobilidade/aquecimento
+/*** Programa da Semana 1 (cargas e links) ***/
 const W1 = {
  d1: [
   {blk:'Mobilidade', ex:'Panturrilha, t-spine, Couch', sets:'2–3 min', lift:null, perc:null, link:'https://www.youtube.com/watch?v=ulgAOykAgV4'},
@@ -281,20 +310,19 @@ const W1 = {
  ]
 };
 
-/*** ===== Render ===== ***/
-function kgText(tm, p){ if(!p) return '—'; const [a,b]=p; const t1=perc(tm,a); const t2=perc(tm,b); return (a===b)?(`${t1}`):(`${t1} – ${t2}`); }
+/*** ===== Render das linhas ===== ***/
+function kgText(tm,p){ if(!p) return '—'; const [a,b]=p; const t1=perc(tm,a), t2=perc(tm,b); return (a===b)? `${t1}` : `${t1} – ${t2}`; }
 function kgDefault(tm,p){ if(!p) return 0; return perc(tm,p[0]); }
 
+/*** Cria linha HTML de um exercício ***/
 function renderDay(dayId, data){
-  const tbody = $('#'+dayId);
   const tm = getTM();
   let html = '';
   data.forEach((it,idx)=>{
     const base = it.lift? tm[it.lift]||0 : 0;
     const presc = kgText(base, it.perc);
     const defKg = kgDefault(base, it.perc);
-    const link = it.link ? `<a target=_blank href="${it.link}">ver</a>` : '—';
-    // timer por exercício
+    const link = it.link? `<a target=_blank href="${it.link}">ver</a>` : '—';
     html += `<tr data-lift="${it.lift||''}" data-perc="${it.perc?it.perc.join(','):''}">
       <td>${idx+1}</td>
       <td>${it.blk}</td>
@@ -303,10 +331,7 @@ function renderDay(dayId, data){
       <td>${presc}</td>
       <td><input type="number" step="0.5" value="${defKg}"></td>
       <td>
-        <select>
-          <option value="">—</option>
-          ${[6,7,8,8.5,9,9.5,10].map(v=>`<option>${v}</option>`).join('')}
-        </select>
+        <select><option value="">—</option>${[6,7,8,8.5,9,9.5,10].map(v=>`<option>${v}</option>`).join('')}</select>
       </td>
       <td style="text-align:center"><input type="checkbox"></td>
       <td>
@@ -318,126 +343,205 @@ function renderDay(dayId, data){
       <td>${link}</td>
     </tr>`;
   });
-  tbody.innerHTML = html;
+  $('#'+dayId).innerHTML = html;
+  // adicionar listeners p/ checkboxes: marcar linha + iniciar descanso automático
+  addCheckboxListeners(dayId);
 }
 
+/*** Gera todas as tabelas ***/
 function renderAll(){
-  // datas padrão
-  ['d1','d2','d3','d4'].forEach(d=>{const el=$('#date-'+d); if(el && !el.value) el.value=today();});
+  ['d1','d2','d3','d4'].forEach(d=>{
+    const elDate = $('#date-'+d);
+    if(elDate && !elDate.value) elDate.value = today();
+  });
   renderDay('d1', W1.d1);
   renderDay('d2', W1.d2);
   renderDay('d3', W1.d3);
   renderDay('d4', W1.d4);
 }
-load1RM(); showTMs(); renderAll();
-['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>{ $('#'+id)?.addEventListener('input', ()=>{ showTMs(); renderAll(); }); });
 
-/*** ===== Timers ===== ***/
+/*** Checkbox → marca linha e inicia descanso ***/
+function addCheckboxListeners(dayId, defaultRest=90){
+  document.querySelectorAll('#'+dayId+' input[type="checkbox"]').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      const tr = cb.closest('tr');
+      if(cb.checked){
+        tr.classList.add('done');
+        startRest(dayId, defaultRest);
+      } else {
+        tr.classList.remove('done');
+      }
+    });
+  });
+}
+
+/*** Timer simples (stopwatch) ***/
 function mkStopwatch(displayEl){
   let t=0, iv=null;
-  const fmt= s => String(Math.floor(s/60)).padStart(2,'0')+':'+String(Math.floor(s%60)).padStart(2,'0');
-  const paint=()=>displayEl.textContent=fmt(t);
+  const fmt = s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(Math.floor(s%60)).padStart(2,'0');
+  const paint = ()=> displayEl.textContent=fmt(t);
   return {
     start(){ if(iv) return; iv=setInterval(()=>{t++; paint();},1000); },
     stop(){ clearInterval(iv); iv=null; },
     reset(){ t=0; paint(); },
-    set(s){ t=s; paint(); }
-  }
+    get(){ return t; }
+  };
 }
 const rowTimers = new Map();
-document.addEventListener('click', (e)=>{
-  const b=e.target.closest('button'); if(!b) return;
+document.addEventListener('click',(e)=>{
+  const b=e.target.closest('button');
+  if(!b) return;
   if(b.classList.contains('start')||b.classList.contains('stop')||b.classList.contains('reset')){
-    const id=b.getAttribute('data-for'); const el = document.getElementById(id); if(!el) return;
-    if(!rowTimers.has(id)) rowTimers.set(id, mkStopwatch(el));
+    const id=b.getAttribute('data-for');
+    const el=document.getElementById(id);
+    if(!rowTimers.has(id)) rowTimers.set(id,mkStopwatch(el));
     const sw=rowTimers.get(id);
     if(b.classList.contains('start')) sw.start();
     if(b.classList.contains('stop')) sw.stop();
     if(b.classList.contains('reset')) sw.reset();
   }
 });
-/* Timer global da sessão */
+
+/*** Timer global de sessão ***/
 const sessSw = mkStopwatch($('#sess-timer'));
 $('#sess-start').addEventListener('click',()=>sessSw.start());
 $('#sess-stop').addEventListener('click',()=>sessSw.stop());
 $('#sess-reset').addEventListener('click',()=>sessSw.reset());
-/* Descanso por dia */
+
+/*** Descanso por dia ***/
+function formatTime(t){ return String(Math.floor(t/60)).padStart(2,'0')+':'+String(Math.floor(t%60)).padStart(2,'0'); }
 function startRest(day, secs){
-  const el = $('#rest-'+day); if(!el) return;
-  let t=secs; el.textContent = String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
-  const iv=setInterval(()=>{ t--; el.textContent = String(Math.floor(Math.max(t,0)/60)).padStart(2,'0')+':'+String(Math.max(t,0)%60).padStart(2,'0'); if(t<=0) clearInterval(iv); },1000);
+  restTotals[day]=(restTotals[day]||0)+secs;
+  const el = $('#rest-'+day);
+  playBeep(); // beep ao iniciar descanso
+  let t=secs;
+  if(el) el.textContent=formatTime(t);
+  const iv=setInterval(()=>{
+    t--;
+    if(el) el.textContent=formatTime(Math.max(t,0));
+    if(t<=0){
+      clearInterval(iv);
+      playBeep(); // beep final do descanso
+    }
+  },1000);
 }
 document.querySelectorAll('.rest').forEach(btn=>{
-  btn.addEventListener('click', ()=> {
-    const secs=Number(btn.dataset.secs||60);
-    const day = btn.closest('details').querySelector('tbody').id; // d1/d2...
+  btn.addEventListener('click',()=>{
+    const secs=Number(btn.dataset.secs||90);
+    const day = btn.closest('details').querySelector('tbody').id;
     startRest(day, secs);
   });
 });
 
-/*** ===== Salvar sessão & Histórico ===== ***/
+/*** Salvar sessão do dia ***/
 function saveDay(dayId){
   const date = $('#date-'+dayId)?.value || today();
   const tbody = $('#'+dayId);
-  const rows = [...tbody.querySelectorAll('tr')];
+  const rows=[...tbody.querySelectorAll('tr')];
+  let activeSecs=0;
   const itens = rows.map((tr,idx)=>{
-    const tds = tr.querySelectorAll('td');
-    const realKg = Number(tr.querySelector('input[type=number]').value||0);
-    const rpe = tr.querySelector('select').value||'';
-    const feito = tr.querySelector('input[type=checkbox]').checked;
+    const tds=tr.querySelectorAll('td');
+    const realKg=Number(tr.querySelector('input[type=number]').value||0);
+    const rpe=tr.querySelector('select').value||'';
+    const feito=tr.querySelector('input[type=checkbox]').checked;
+    // tempo ativo: pega cronômetro individual
+    const timerEl = tr.querySelector('span.timer');
+    let secs=0;
+    if(timerEl){
+      const [m,s]=timerEl.textContent.split(':').map(Number);
+      secs=m*60+s;
+      activeSecs+=secs;
+    }
     return {
-      idx: idx+1,
-      bloco: tds[1].innerText,
-      ex: tds[2].innerText,
-      series: tds[3].innerText,
-      prescrito: tds[4].innerText,
-      realKg, rpe, feito
+      idx:idx+1,
+      bloco:tds[1].innerText,
+      ex:tds[2].innerText,
+      series:tds[3].innerText,
+      prescrito:tds[4].innerText,
+      realKg,
+      rpe,
+      feito,
+      activeSecs:secs
     };
   });
-  const sess = { dia: dayId, data: date, tm: getTM(), itens, ts: Date.now() };
-  const arr = JSON.parse(localStorage.getItem(sessKey)||'[]');
+  const rest = restTotals[dayId]||0;
+  const sess = {dia:dayId, data:date, tm:getTM(), itens, activeSecs, restSecs:rest, totalSecs:activeSecs+rest, ts:Date.now()};
+  const arr=JSON.parse(localStorage.getItem(sessKey)||'[]');
   arr.unshift(sess);
   localStorage.setItem(sessKey, JSON.stringify(arr));
-  alert('Sessão salva: '+dayId+' ('+date+')');
+  alert('Sessão salva: '+dayId+' ('+date+')\\nTempo total: '+formatTime(activeSecs+rest)+' (ativo '+formatTime(activeSecs)+' | descanso '+formatTime(rest)+')');
   renderHistory();
 }
-document.querySelectorAll('[data-save-day]').forEach(b=>b.addEventListener('click',()=>saveDay(b.dataset.saveDay)));
-document.querySelectorAll('[data-markall]').forEach(b=>b.addEventListener('click',()=>{
-  const tbody = $('#'+b.dataset.markall);
-  tbody.querySelectorAll('input[type=checkbox]').forEach(ch=>ch.checked=true);
-}));
+document.querySelectorAll('[data-save-day]').forEach(btn=>{
+  btn.addEventListener('click',()=> saveDay(btn.dataset.saveDay));
+});
+document.querySelectorAll('[data-markall]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const tbody = $('#'+btn.dataset.markall);
+    tbody.querySelectorAll('input[type=checkbox]').forEach(cb=>{ cb.checked=true; cb.dispatchEvent(new Event('change')); });
+  });
+});
 
+/*** Histórico e exportação CSV ***/
 function renderHistory(){
-  const box = $('#hist'); const arr = JSON.parse(localStorage.getItem(sessKey)||'[]');
+  const box = $('#hist');
+  const arr=JSON.parse(localStorage.getItem(sessKey)||'[]');
   if(!arr.length){ box.innerHTML='<div class="muted">Sem sessões salvas ainda.</div>'; return; }
   let html='';
   arr.forEach((s,i)=>{
-    const feitos=s.itens.filter(x=>x.feito).length, total=s.itens.length;
+    const feitos=s.itens.filter(x=>x.feito).length;
+    const total=s.itens.length;
     const rpeMed = (s.itens.filter(x=>x.rpe).reduce((a,b)=>a+Number(b.rpe),0) / Math.max(1,s.itens.filter(x=>x.rpe).length)).toFixed(1);
-    const nomeDia = {d1:'Dia 1',d2:'Dia 2',d3:'Dia 3',d4:'Dia 4'}[s.dia]||s.dia;
-    html += `<details ${i===0?'open':''}><summary>${s.data} • ${nomeDia} — ${feitos}/${total} feitos • RPE médio ${isNaN(rpeMed)?'—':rpeMed}</summary>
+    const totalMin = (s.totalSecs/60).toFixed(1);
+    const activeMin = (s.activeSecs/60).toFixed(1);
+    const restMin = (s.restSecs/60).toFixed(1);
+    const nomeDia={d1:'Dia 1',d2:'Dia 2',d3:'Dia 3',d4:'Dia 4'}[s.dia]||s.dia;
+    html += `<details ${i===0?'open':''}><summary>${s.data} • ${nomeDia} — ${feitos}/${total} feitos • RPE ${isNaN(rpeMed)?'—':rpeMed} • ${totalMin}min (ativo ${activeMin} / descanso ${restMin})</summary>
+      <div style="overflow-x:auto;">
       <table><thead><tr><th>#</th><th>Exercício</th><th>Séries</th><th>Prescrito</th><th>Real</th><th>RPE</th><th>Feito</th></tr></thead><tbody>`;
     s.itens.forEach(it=>{
-      html += `<tr><td>${it.idx}</td><td>${it.ex}</td><td>${it.series}</td><td>${it.prescrito}</td>
-        <td>${it.realKg||'—'}</td><td>${it.rpe||'—'}</td><td>${it.feito?'✔️':'—'}</td></tr>`;
+      html+=`<tr><td>${it.idx}</td><td>${it.ex}</td><td>${it.series}</td><td>${it.prescrito}</td><td>${it.realKg||'—'}</td><td>${it.rpe||'—'}</td><td>${it.feito?'✔️':'—'}</td></tr>`;
     });
-    html += `</tbody></table></details>`;
+    html+='</tbody></table></div></details>';
   });
-  box.innerHTML=html;
+  box.innerHTML = html;
 }
-$('#exportCsv').addEventListener('click', ()=>{
-  const arr = JSON.parse(localStorage.getItem(sessKey)||'[]');
+$('#exportCsv').addEventListener('click',()=>{
+  const arr=JSON.parse(localStorage.getItem(sessKey)||'[]');
   if(!arr.length){ alert('Sem sessões para exportar.'); return; }
-  const lines = ['data,dia,idx,exercicio,series,prescrito,real_kg,rpe,feito'];
-  arr.forEach(s=>s.itens.forEach(it=>lines.push([
-    s.data,s.dia,it.idx,`"${it.ex.replace(/"/g,'""')}"`,`"${it.series}"`,`"${it.prescrito}"`,it.realKg,it.rpe,(it.feito?1:0)
-  ].join(','))));
-  const blob = new Blob([lines.join('\n')], {type:'text/csv'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'lpo-historico.csv'; a.click();
+  const lines = ['data,dia,idx,exercicio,series,prescrito,real_kg,rpe,feito,active_secs,rest_secs,total_secs'];
+  arr.forEach(s=>{
+    s.itens.forEach(it=>{
+      lines.push([
+        s.data,
+        s.dia,
+        it.idx,
+        `"${it.ex.replace(/"/g,'""')}"`,
+        `"${it.series}"`,
+        `"${it.prescrito}"`,
+        it.realKg,
+        it.rpe||'',
+        it.feito?1:0,
+        it.activeSecs,
+        s.restSecs,
+        s.totalSecs
+      ].join(','));
+    });
+  });
+  const blob=new Blob([lines.join('\\n')], {type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='lpo-historico.csv';
+  a.click();
 });
-$('#clearHist').addEventListener('click', ()=>{ if(confirm('Apagar todo o histórico deste aparelho?')){ localStorage.removeItem(sessKey); renderHistory(); }});
+$('#clearHist').addEventListener('click',()=>{
+  if(confirm('Apagar todo o histórico deste aparelho?')){
+    localStorage.removeItem(sessKey);
+    renderHistory();
+  }
+});
 
-/*** ===== Tabs ===== ***/
+/*** Troca de abas ***/
 function showTab(name){
   ['treino','hist','config'].forEach(t=>{
     $('#page-'+t).classList.toggle('hide', t!==name);
@@ -446,13 +550,24 @@ function showTab(name){
   if(name==='hist') renderHistory();
   window.scrollTo({top:0,behavior:'smooth'});
 }
-$('#tab-treino').addEventListener('click',()=>showTab('treino'));
-$('#tab-historico').addEventListener('click',()=>showTab('hist'));
-$('#tab-config').addEventListener('click',()=>showTab('config'));
+$('#tab-treino').addEventListener('click',()=> showTab('treino'));
+$('#tab-historico').addEventListener('click',()=> showTab('hist'));
+$('#tab-config').addEventListener('click',()=> showTab('config'));
 
-/*** ===== PWA register ===== ***/
+/*** Inicialização ***/
+load1RM();
+showTMs();
+renderAll();
+['sn1','cj1','fs1','bs1','dl1','bp1','oh1'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('input', ()=>{ showTMs(); renderAll(); });
+});
+
+/*** Registrar Service Worker (PWA) ***/
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(console.error));
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./service-worker.js').catch(console.error);
+  });
 }
 </script>
 </body>
